@@ -11,7 +11,7 @@ Package name: `blaze-navigation`.
 
 ## 1. Design Philosophy
 
-**Native-first.** All animations, transitions, and gestures are handled by `react-native-screens`. The library never reimplements what the platform already provides. No `Animated` values for card transitions, no JS gesture responders for swipe-back. 
+**Native-first.** All animations, transitions, and gestures are handled by `react-native-screens`. The library never reimplements what the platform already provides. No `Animated` values for card transitions, no JS gesture responders for swipe-back.
 
 **Config-based routing.** A single `createRouter({ routes: {...} })` call defines the entire app's route tree. No JSX `<Navigator>` / `<Screen>` pattern — routes, components, and nesting are all declared in one config object.
 
@@ -28,6 +28,7 @@ Package name: `blaze-navigation`.
 **Target: 70-80% code reduction** compared to React Navigation.
 
 ## Important API decisions
+
 - We use `$` to denote dynamic segments in the path. For example, `$postId` will match any path like `/posts/123` and will make `postId` available as a parameter.
 - The `component` property is used to specify the React component that should be rendered when the route is matched. This allows us to easily define our routes and their corresponding components in a clear and concise way.
 - The `children` property allows us to define nested routes, which is useful for organizing our routes in a hierarchical manner. This means that we can have routes that are nested within other routes, which can help to keep our routing structure clean and easy to understand.
@@ -35,6 +36,7 @@ Package name: `blaze-navigation`.
 - The `Link` component provides a declarative way to create links to different routes in our application. This is useful for situations where we want to create links that users can click on to navigate to different parts of our application.
 
 ## Things for the initial release:
+
 - [x] Global NavigationProvider that provides the router context to the entire app
   - Each route's component is wrapped in its own ScreenProvider that provides the route context (e.g. params, query, etc.) to the component and its children
 - [x] Basic routing with dynamic segments
@@ -53,6 +55,7 @@ Package name: `blaze-navigation`.
 - [x] Custom reanimated transitions for route changes on web (e.g. fade, slide, etc.)
 
 ## DO NOT include for the initial release:
+
 - Deep linking support (e.g. handling external links that should open in the app)
 - server-side rendering (SSR)
 - Focus management (e.g. automatically focusing on the first input in a new route)
@@ -74,11 +77,11 @@ const router = createRouter({
   routes: {
     main: {
       component: MainLayout,
-      navigator: 'tabs',           // this node is a tab navigator
+      navigator: 'tabs', // this node is a tab navigator
       children: {
         home: {
           component: HomeLayout,
-          navigator: 'stack',      // nested stack inside a tab
+          navigator: 'stack', // nested stack inside a tab
           children: {
             feed: { component: FeedPage },
             $itemId: { component: ItemDetailPage },
@@ -100,7 +103,7 @@ It's important that we augment the types so that we will be able to infer hrefs 
 ```ts
 declare module 'blaze-navigation' {
   interface Register {
-    router: typeof router
+    router: typeof router;
   }
 }
 ```
@@ -108,28 +111,29 @@ declare module 'blaze-navigation' {
 For navigation we can use `navigate`, `goBack` and `replace` functions (they will infer the types from the router):
 
 ```ts
-import { navigate, goBack, replace } from 'blaze-navigation'
+import { navigate, goBack, replace } from 'blaze-navigation';
 
-navigate('/posts/123') // will navigate to /posts/123
-goBack() // will go back to the previous page
-replace('/posts/123') // will replace the current page with /posts/123
+navigate('/posts/123'); // will navigate to /posts/123
+goBack(); // will go back to the previous page
+replace('/posts/123'); // will replace the current page with /posts/123
 ```
 
 or we can use `Link` component:
 
 ```ts
-import { Link } from 'blaze-navigation'
-<Link to="/posts/123">Go to post 123</Link>
+import { Link } from 'blaze-navigation';
+<Link to="/posts/123">Go to post 123</Link>;
 ```
 
 For accessing parameters in the component, we can use `useParams` hook:
 
 ```ts
-import { useParams } from 'blaze-navigation'
-const { postId } = useParams() // will give us the value of postId from the URL
+import { useParams } from 'blaze-navigation';
+const { postId } = useParams(); // will give us the value of postId from the URL
 ```
 
 ## Navigation state management
+
 The navigation state is managed in a single source of truth, which is the `state` object. navigators can be nested and on native tabs and stacks add additional problems.
 
 ## History management
@@ -197,7 +201,7 @@ interface NavigatorState {
   type: 'stack' | 'tabs';
   routes: Route[];
   index: number;
-  children?: Record<string, NavigatorState>;  // nested navigator states
+  children?: Record<string, NavigatorState>; // nested navigator states
 }
 ```
 
@@ -209,6 +213,7 @@ The state is derived from two inputs:
 2. **Current URL path** — determines which routes are active
 
 When `navigate('/posts/123')` is called:
+
 1. The path `/posts/123` is matched against the route config tree
 2. The matching branch is identified: `posts` → `$postId` with `postId = '123'`
 3. The state tree is updated: the `posts` stack pushes a new route for `$postId`
@@ -253,12 +258,12 @@ All tab routes exist in state from mount. Switch = update `index`. Each tab may 
 ### State Sync Between Nested Navigators
 
 When navigating to a deeply nested path like `/home/profile/user42`:
+
 1. The root state identifies `home` (tabs navigator)
 2. The `home` tabs state switches to `profile` (index update)
 3. The `profile` route's nested state (if it has a stack) pushes `$userId` with `userId = 'user42'`
 
 All of this happens in a single state update — no cascading dispatches.
-
 
 ### Key Behaviors
 
@@ -293,11 +298,11 @@ On native, navigation state is the primary source of truth. There is no browser 
 
 ```typescript
 interface HistoryAdapter {
-  push(path: string): void;     // history.pushState
-  replace(path: string): void;  // history.replaceState
-  back(): void;                 // history.back()
+  push(path: string): void; // history.pushState
+  replace(path: string): void; // history.replaceState
+  back(): void; // history.back()
   listen(cb: (path: string) => void): () => void; // popstate listener
-  getPath(): string;            // window.location.pathname
+  getPath(): string; // window.location.pathname
 }
 ```
 
@@ -354,7 +359,8 @@ export default function App() {
 
 // In a screen component:
 function HomeScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
 
   return (
     <Button
@@ -368,7 +374,13 @@ function HomeScreen() {
 **blaze-navigation:**
 
 ```typescript
-import { createRouter, NavigationProvider, navigate, useParams, Link } from 'blaze-navigation';
+import {
+  createRouter,
+  NavigationProvider,
+  navigate,
+  useParams,
+  Link,
+} from 'blaze-navigation';
 // 1 package
 
 const router = createRouter({
@@ -392,7 +404,9 @@ const router = createRouter({
 
 // types.d.ts
 declare module 'blaze-navigation' {
-  interface Register { router: typeof router }
+  interface Register {
+    router: typeof router;
+  }
 }
 
 export default function App() {
@@ -415,10 +429,7 @@ function FeedPage() {
 // Or programmatically:
 function SomeButton() {
   return (
-    <Button
-      title="Open Details"
-      onPress={() => navigate('/home/feed/42')}
-    />
+    <Button title="Open Details" onPress={() => navigate('/home/feed/42')} />
   );
 }
 
@@ -431,16 +442,16 @@ function DetailsScreen() {
 
 ### Key Differences
 
-| Aspect | React Navigation | blaze-navigation |
-|--------|-----------------|-------------------|
-| Packages | 3+ (`native`, `native-stack`, `bottom-tabs`) | 1 (`blaze-navigation`) |
-| Route definition | JSX `<Navigator>` / `<Screen>` tree | Config object in `createRouter()` |
-| Type setup | `ParamList` generics on every factory + hook | Module augmentation — one `declare module` |
-| Navigation call | `navigation.navigate('Details', { id })` | `navigate('/home/feed/42')` |
-| Navigation access | `useNavigation()` hook per screen | Global import `from 'blaze-navigation'` |
-| Route params | `useRoute().params` | `useParams()` |
-| Links | Third-party or manual `Pressable` + `navigate` | `<Link to="/path">` built-in |
-| Dynamic segments | `:id` in linking config | `$id` in route config key |
-| Contexts | 8+ | 2 (`RouterContext`, `ScreenContext`) |
-| State management | Router protocol + action dispatch + bubbling | Single state tree derived from config + URL |
-| Internals | ~25k LOC across 12 packages | Target: ~3-5k LOC in 1 package |
+| Aspect            | React Navigation                               | blaze-navigation                            |
+| ----------------- | ---------------------------------------------- | ------------------------------------------- |
+| Packages          | 3+ (`native`, `native-stack`, `bottom-tabs`)   | 1 (`blaze-navigation`)                      |
+| Route definition  | JSX `<Navigator>` / `<Screen>` tree            | Config object in `createRouter()`           |
+| Type setup        | `ParamList` generics on every factory + hook   | Module augmentation — one `declare module`  |
+| Navigation call   | `navigation.navigate('Details', { id })`       | `navigate('/home/feed/42')`                 |
+| Navigation access | `useNavigation()` hook per screen              | Global import `from 'blaze-navigation'`     |
+| Route params      | `useRoute().params`                            | `useParams()`                               |
+| Links             | Third-party or manual `Pressable` + `navigate` | `<Link to="/path">` built-in                |
+| Dynamic segments  | `:id` in linking config                        | `$id` in route config key                   |
+| Contexts          | 8+                                             | 2 (`RouterContext`, `ScreenContext`)        |
+| State management  | Router protocol + action dispatch + bubbling   | Single state tree derived from config + URL |
+| Internals         | ~25k LOC across 12 packages                    | Target: ~3-5k LOC in 1 package              |

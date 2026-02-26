@@ -4,14 +4,11 @@ Blazingly fast react native navigation library
 
 ## Installation
 
-
 ```sh
 npm install blaze-navigation
 ```
 
-
 ## Usage
-
 
 ```js
 import { multiply } from 'blaze-navigation';
@@ -20,7 +17,6 @@ import { multiply } from 'blaze-navigation';
 
 const result = await multiply(3, 7);
 ```
-
 
 ## Contributing
 

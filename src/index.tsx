@@ -12,7 +12,6 @@ export { NavigatorRenderer } from './NavigatorRenderer';
 
 // Hooks
 export { useParams } from './hooks/useParams';
-export { useNavigate } from './hooks/useNavigate';
 export { useNavigationListener } from './hooks/useListeners';
 
 // Contexts (for advanced use)
@@ -27,7 +26,6 @@ export type {
   RouterInstance,
   RoutePattern,
   NavigatorSegment,
-  NavigationAction,
   RouterContextValue,
   ScreenContextValue,
   NavigationEventType,

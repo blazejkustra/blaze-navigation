@@ -1,20 +1,50 @@
-import { Text, View, StyleSheet } from 'react-native';
-import { multiply } from 'blaze-navigation';
+import { createRouter, NavigationProvider } from 'blaze-navigation';
+import { FeedScreen } from './screens/FeedScreen';
+import { DetailScreen } from './screens/DetailScreen';
+import { ProfileScreen } from './screens/ProfileScreen';
+import { SettingsScreen } from './screens/SettingsScreen';
 
-const result = multiply(3, 7);
-
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Result: {result}</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+const router = createRouter({
+  routes: {
+    home: {
+      navigator: 'tabs',
+      children: {
+        feed: {
+          component: FeedScreen,
+          navigator: 'stack',
+          tabOptions: {
+            title: 'Feed',
+          },
+          children: {
+            $itemId: {
+              component: DetailScreen,
+            },
+          },
+        },
+        profile: {
+          component: ProfileScreen,
+          tabOptions: {
+            title: 'Profile',
+          },
+        },
+        settings: {
+          component: SettingsScreen,
+          tabOptions: {
+            title: 'Settings',
+          },
+        },
+      },
+    },
   },
 });
+
+// Type augmentation for full type inference
+declare module 'blaze-navigation' {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+export default function App() {
+  return <NavigationProvider router={router} />;
+}

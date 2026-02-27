@@ -31,21 +31,34 @@ export interface RouterConfig {
 // Navigation state types
 // ---------------------------------------------------------------------------
 
-export interface Route {
+export interface StackEntry {
   key: string;
+  routeName: string;
   path: string;
-  name: string;
-  params?: Record<string, string>;
-  query?: Record<string, string>;
+  params: Record<string, string>;
+  nestedState?: NavigatorState;
 }
 
-export interface NavigatorState {
-  type: 'stack' | 'tabs';
-  routeName: string;
-  routes: Route[];
-  index: number;
-  children?: Record<string, NavigatorState>;
+export interface StackState {
+  type: 'stack';
+  entries: StackEntry[];
 }
+
+export interface TabEntry {
+  key: string;
+  path: string;
+  params: Record<string, string>;
+  rendered: boolean;
+  nestedState?: NavigatorState;
+}
+
+export interface TabState {
+  type: 'tabs';
+  activeKey: string;
+  tabs: Record<string, TabEntry>;
+}
+
+export type NavigatorState = StackState | TabState;
 
 // ---------------------------------------------------------------------------
 // Router instance
@@ -62,6 +75,7 @@ export interface RoutePattern {
   path: string;
   segments: string[];
   paramNames: string[];
+  routeName: string;
   routeConfig: RouteConfig;
   /** Path through navigators to reach this route */
   navigatorPath: NavigatorSegment[];
@@ -74,8 +88,26 @@ export interface NavigatorSegment {
 }
 
 // ---------------------------------------------------------------------------
+// Actions
+// ---------------------------------------------------------------------------
+
+export type Action =
+  | { type: 'NAVIGATE'; path: string }
+  | { type: 'REPLACE'; path: string }
+  | { type: 'GO_BACK' }
+  | { type: 'DISMISS'; key: string };
+
+// ---------------------------------------------------------------------------
 // Context types
 // ---------------------------------------------------------------------------
+
+export interface Route {
+  key: string;
+  path: string;
+  name: string;
+  params?: Record<string, string>;
+  query?: Record<string, string>;
+}
 
 export interface RouterContextValue {
   router: RouterInstance;

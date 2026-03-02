@@ -42,7 +42,17 @@ export function createInitialState(router: RouterInstance): NavigatorState {
     throw new Error('Router config must have at least one route');
   }
 
-  const [rootName, rootConfig] = rootEntries[0]!;
+  // Find first accessible root route
+  const accessible = rootEntries.find(
+    ([_, config]) => !config.guard || config.guard()
+  );
+  if (!accessible) {
+    throw new Error(
+      '[blaze-navigation] No accessible root route — at least one root route must have a passing guard'
+    );
+  }
+
+  const [rootName, rootConfig] = accessible;
   return createNavigatorState(rootName, rootConfig);
 }
 
@@ -345,4 +355,162 @@ function goBackDeep(state: NavigatorState): NavigatorState | null {
   }
 
   return null;
+}
+
+/**
+ * Walks the state tree and removes screens whose guards now fail.
+ * Returns the same reference if nothing changed (avoids re-render loops).
+ *
+ * @param state - The current navigator state tree.
+ * @param router - The router instance with route configs.
+ * @returns A new state with guarded screens removed, or the same reference if unchanged.
+ */
+export function revalidateState(
+  state: NavigatorState,
+  router: RouterInstance
+): NavigatorState {
+  // Check root-level guard: if the active root route's guard fails, rebuild from scratch
+  const activeRootName = getActiveRootName(state);
+
+  if (activeRootName) {
+    const activeRootConfig = router.config.routes[activeRootName];
+    if (activeRootConfig?.guard && !activeRootConfig.guard()) {
+      // Active root is no longer accessible, rebuild initial state
+      return createInitialState(router);
+    }
+  }
+
+  // Recurse into the state tree to clean up nested guarded routes
+  return revalidateNavigatorState(state, router);
+}
+
+/**
+ * Extracts the active root route name from the current state.
+ */
+function getActiveRootName(state: NavigatorState): string | undefined {
+  if (state.type === 'stack') {
+    return state.entries[0]?.routeName;
+  }
+  if (state.type === 'tabs') {
+    return state.activeKey;
+  }
+  return undefined;
+}
+
+/**
+ * Recursively revalidates a navigator state node, removing entries whose guards fail.
+ */
+function revalidateNavigatorState(
+  state: NavigatorState,
+  router: RouterInstance
+): NavigatorState {
+  if (state.type === 'stack') {
+    return revalidateStack(state, router);
+  }
+  if (state.type === 'tabs') {
+    return revalidateTabs(state, router);
+  }
+  return state;
+}
+
+function revalidateStack(
+  state: StackState,
+  router: RouterInstance
+): StackState {
+  let changed = false;
+  const newEntries: StackEntry[] = [];
+
+  for (const entry of state.entries) {
+    const pattern = router.patterns.find(
+      (p) => p.routeName === entry.routeName
+    );
+
+    // If pattern has guards and they fail, remove this entry
+    if (
+      pattern &&
+      pattern.guards.length > 0 &&
+      !pattern.guards.every((g) => g())
+    ) {
+      changed = true;
+      continue;
+    }
+
+    // Recurse into nested state
+    if (entry.nestedState) {
+      const revalidated = revalidateNavigatorState(entry.nestedState, router);
+      if (revalidated !== entry.nestedState) {
+        changed = true;
+        newEntries.push({ ...entry, nestedState: revalidated });
+        continue;
+      }
+    }
+
+    newEntries.push(entry);
+  }
+
+  if (!changed) return state;
+
+  // If all entries were removed, we need at least one — find first accessible child
+  if (newEntries.length === 0) {
+    // Fall back to a rebuilt initial state (caller handles root-level)
+    return state;
+  }
+
+  return { ...state, entries: newEntries };
+}
+
+function revalidateTabs(state: TabState, router: RouterInstance): TabState {
+  let changed = false;
+  const newTabs: TabState['tabs'] = {};
+  let activeKeyGuarded = false;
+
+  for (const [key, tab] of Object.entries(state.tabs)) {
+    const pattern = router.patterns.find((p) => p.routeName === key);
+    const isGuarded =
+      pattern && pattern.guards.length > 0 && !pattern.guards.every((g) => g());
+
+    if (isGuarded && key === state.activeKey) {
+      activeKeyGuarded = true;
+    }
+
+    // Keep all tabs in state but recurse into nested state
+    if (tab.nestedState) {
+      const revalidated = revalidateNavigatorState(tab.nestedState, router);
+      if (revalidated !== tab.nestedState) {
+        changed = true;
+        newTabs[key] = { ...tab, nestedState: revalidated };
+        continue;
+      }
+    }
+
+    newTabs[key] = tab;
+  }
+
+  if (activeKeyGuarded) {
+    // Switch to first accessible tab
+    const firstAccessible = Object.keys(newTabs).find((key) => {
+      const pattern = router.patterns.find((p) => p.routeName === key);
+      return (
+        !pattern ||
+        pattern.guards.length === 0 ||
+        pattern.guards.every((g) => g())
+      );
+    });
+
+    if (firstAccessible && firstAccessible !== state.activeKey) {
+      changed = true;
+      return {
+        ...state,
+        activeKey: firstAccessible,
+        tabs: {
+          ...newTabs,
+          [firstAccessible]: { ...newTabs[firstAccessible]!, rendered: true },
+        },
+      };
+    }
+  }
+
+  if (!changed) return state;
+
+  return { ...state, tabs: newTabs };
 }

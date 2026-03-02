@@ -1,13 +1,15 @@
 import React from 'react';
 import { Tabs } from 'react-native-screens';
 import { ScreenProvider } from '../ScreenProvider';
-import type { TabState, TabEntry } from '../types';
+import { isRouteAccessible } from '../createRouter';
+import type { TabState, TabEntry, RouterInstance } from '../types';
 
 interface TabViewProps {
   state: TabState;
   components: Record<string, React.ComponentType<any>>;
   onTabFocus: (tabKey: string) => void;
   renderContent?: (tab: TabEntry) => React.ReactNode;
+  router?: RouterInstance;
 }
 
 /**
@@ -20,13 +22,21 @@ export function TabView({
   components,
   onTabFocus,
   renderContent,
+  router,
 }: TabViewProps) {
+  // Filter out tabs whose guard returns false
+  const visibleTabs = Object.entries(state.tabs).filter(([key]) => {
+    if (!router) return true;
+    const pattern = router.patterns.find((p) => p.routeName === key);
+    return !pattern || isRouteAccessible(pattern);
+  });
+
   return (
     <Tabs.Host
       experimentalControlNavigationStateInJS
       onNativeFocusChange={(e) => onTabFocus(e.nativeEvent.tabKey)}
     >
-      {Object.entries(state.tabs).map(([key, tab]) => {
+      {visibleTabs.map(([key, tab]) => {
         const isFocused = key === state.activeKey;
         const Component = components[key];
 

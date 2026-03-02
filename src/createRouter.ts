@@ -9,7 +9,8 @@ import type {
 function flattenRoutes(
   routes: Record<string, RouteConfig>,
   prefix: string,
-  navigatorPath: NavigatorSegment[]
+  navigatorPath: NavigatorSegment[],
+  ancestorGuards: Array<() => boolean>
 ): RoutePattern[] {
   const patterns: RoutePattern[] = [];
 
@@ -19,6 +20,10 @@ function flattenRoutes(
     const paramNames = segments
       .filter((s) => s.startsWith('$'))
       .map((s) => s.slice(1));
+
+    const guards = config.guard
+      ? [...ancestorGuards, config.guard]
+      : [...ancestorGuards];
 
     if (config.children && config.navigator) {
       // If this navigator also has a component, create an "index" leaf pattern for it
@@ -30,6 +35,7 @@ function flattenRoutes(
           routeName: name,
           routeConfig: config,
           navigatorPath,
+          guards,
         });
       }
 
@@ -43,7 +49,8 @@ function flattenRoutes(
         const childPatterns = flattenRoutes(
           { [childName]: childConfig },
           path,
-          [...navigatorPath, segment]
+          [...navigatorPath, segment],
+          guards
         );
         patterns.push(...childPatterns);
       }
@@ -56,11 +63,19 @@ function flattenRoutes(
         routeName: name,
         routeConfig: config,
         navigatorPath,
+        guards,
       });
     }
   }
 
   return patterns;
+}
+
+/**
+ * Returns whether a route pattern is accessible based on all guards in its ancestor chain.
+ */
+export function isRouteAccessible(pattern: RoutePattern): boolean {
+  return pattern.guards.every((g) => g());
 }
 
 /**
@@ -83,7 +98,7 @@ function flattenRoutes(
 export function createRouter<TConfig extends RouterConfig>(
   config: TConfig
 ): RouterInstance<TConfig> {
-  const patterns = flattenRoutes(config.routes, '', []);
+  const patterns = flattenRoutes(config.routes, '', [], []);
 
   return { config, patterns };
 }

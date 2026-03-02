@@ -4,6 +4,7 @@ import { RouterContext } from './NavigationContext';
 import { NavigatorRenderer } from './NavigatorRenderer';
 import { registerDispatch, unregisterDispatch } from './navigation';
 import { matchPath } from './matchPath';
+import { isRouteAccessible } from './createRouter';
 import {
   createInitialState,
   navigateToMatch,
@@ -11,6 +12,7 @@ import {
   canGoBack,
   switchTab,
   resetKeyCounter,
+  revalidateState,
 } from './stateOps';
 import type { RouterInstance, NavigatorState, Action } from './types';
 
@@ -93,6 +95,13 @@ function navigationReducer(
         return state;
       }
 
+      if (!isRouteAccessible(match.pattern)) {
+        if (__DEV__) {
+          console.warn('[blaze-navigation] Route guarded:', action.path);
+        }
+        return state;
+      }
+
       result = navigateToMatch(state, match);
 
       break;
@@ -113,6 +122,13 @@ function navigationReducer(
         return state;
       }
 
+      if (!isRouteAccessible(match.pattern)) {
+        if (__DEV__) {
+          console.warn('[blaze-navigation] Route guarded:', action.path);
+        }
+        return state;
+      }
+
       const backed = goBackReducer(state);
       result = navigateToMatch(backed, match);
       break;
@@ -125,8 +141,24 @@ function navigationReducer(
       break;
     }
     case 'SWITCH_TAB': {
+      // Check if the tab's route is accessible
+      const router = action.router;
+      if (router) {
+        const tabPattern = router.patterns.find(
+          (p) => p.routeName === action.tabKey
+        );
+        if (tabPattern && !isRouteAccessible(tabPattern)) {
+          if (__DEV__) {
+            console.warn('[blaze-navigation] Tab guarded:', action.tabKey);
+          }
+          return state;
+        }
+      }
       result = switchTabDeep(state, action.tabKey);
       break;
+    }
+    case 'SET_STATE': {
+      return action.state;
     }
     default:
       result = state;
@@ -221,6 +253,14 @@ export function NavigationProvider({
     registerDispatch(dispatch);
     return () => unregisterDispatch();
   }, [dispatch]);
+
+  // Reactive guard revalidation: re-evaluate guards on every render
+  useEffect(() => {
+    const revalidated = revalidateState(state, router);
+    if (revalidated !== state) {
+      rawDispatch({ type: 'SET_STATE', state: revalidated });
+    }
+  });
 
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {

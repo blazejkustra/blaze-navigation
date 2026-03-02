@@ -1,5 +1,5 @@
 // Core
-export { createRouter } from './createRouter';
+export { createRouter, isRouteAccessible } from './createRouter';
 export { NavigationProvider } from './NavigationProvider';
 
 // Global navigation functions

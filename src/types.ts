@@ -10,8 +10,8 @@ export interface RouteConfig {
   children?: Record<string, RouteConfig>;
   /** Route metadata */
   meta?: Record<string, unknown>;
-  /** Route guard */
-  guard?: () => boolean | Promise<boolean>;
+  /** Route guard — synchronous function that returns whether the route is accessible */
+  guard?: () => boolean;
   /** Redirect path when guard fails */
   guardRedirect?: string;
   /** Tab-specific options */
@@ -80,6 +80,8 @@ export interface RoutePattern {
   routeConfig: RouteConfig;
   /** Path through navigators to reach this route */
   navigatorPath: NavigatorSegment[];
+  /** Collected guard functions from ancestor chain + own guard */
+  guards: Array<() => boolean>;
 }
 
 export interface NavigatorSegment {
@@ -97,7 +99,8 @@ export type Action =
   | { type: 'REPLACE'; path: string }
   | { type: 'GO_BACK' }
   | { type: 'DISMISS'; key: string }
-  | { type: 'SWITCH_TAB'; tabKey: string };
+  | { type: 'SWITCH_TAB'; tabKey: string }
+  | { type: 'SET_STATE'; state: NavigatorState };
 
 // ---------------------------------------------------------------------------
 // Context types

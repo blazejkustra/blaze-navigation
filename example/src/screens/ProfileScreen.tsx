@@ -9,10 +9,10 @@ export function ProfileScreen() {
         <Text style={styles.name}>John Doe</Text>
         <Text style={styles.email}>john@example.com</Text>
       </View>
-      <Link to="/home/settings" style={styles.link}>
+      <Link to="/settings" style={styles.link}>
         <Text style={styles.linkText}>Go to Settings</Text>
       </Link>
-      <Link to="/home/feed/42" style={styles.link}>
+      <Link to="/feed/42" style={styles.link}>
         <Text style={styles.linkText}>View Item 42</Text>
       </Link>
     </View>

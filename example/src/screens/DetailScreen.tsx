@@ -17,7 +17,7 @@ export function DetailScreen() {
         <Text style={styles.value}>{itemId}</Text>
         <Text style={styles.description}>
           This is the detail view for item {itemId}. The itemId parameter was
-          extracted from the URL path /home/feed/{itemId}.
+          extracted from the URL path /feed/{itemId}.
         </Text>
       </View>
     </View>

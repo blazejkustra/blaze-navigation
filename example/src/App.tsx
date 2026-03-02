@@ -6,39 +6,35 @@ import { SettingsScreen } from './screens/SettingsScreen';
 import { NestingScreen } from './screens/NestingScreen';
 
 const router = createRouter({
-  routes: {
-    home: {
-      navigator: 'tabs',
+  navigator: 'tabs',
+  children: {
+    feed: {
+      component: FeedScreen,
+      navigator: 'stack',
+      tabOptions: {
+        title: 'Feed',
+      },
       children: {
-        feed: {
-          component: FeedScreen,
-          navigator: 'stack',
-          tabOptions: {
-            title: 'Feed',
-          },
-          children: {
-            $itemId: {
-              component: DetailScreen,
-            },
-          },
+        $itemId: {
+          component: DetailScreen,
         },
-        profile: {
-          component: ProfileScreen,
-          tabOptions: {
-            title: 'Profile',
-          },
-        },
-        settings: {
-          component: SettingsScreen,
-          navigator: 'stack',
-          tabOptions: {
-            title: 'Settings',
-          },
-          children: {
-            $depth: {
-              component: NestingScreen,
-            },
-          },
+      },
+    },
+    profile: {
+      component: ProfileScreen,
+      tabOptions: {
+        title: 'Profile',
+      },
+    },
+    settings: {
+      component: SettingsScreen,
+      navigator: 'stack',
+      tabOptions: {
+        title: 'Settings',
+      },
+      children: {
+        $depth: {
+          component: NestingScreen,
         },
       },
     },

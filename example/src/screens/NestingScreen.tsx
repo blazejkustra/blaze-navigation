@@ -23,7 +23,7 @@ export function NestingScreen() {
         </Text>
         <Pressable
           style={styles.button}
-          onPress={() => navigate(`/home/settings/${next}`)}
+          onPress={() => navigate(`/settings/${next}`)}
         >
           <Text style={styles.buttonText}>Go to level {next}</Text>
         </Pressable>

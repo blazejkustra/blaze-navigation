@@ -18,7 +18,7 @@ export function FeedScreen() {
         renderItem={({ item }) => (
           <Pressable
             style={styles.card}
-            onPress={() => navigate(`/home/feed/${item.id}`)}
+            onPress={() => navigate(`/feed/${item.id}`)}
           >
             <Text style={styles.cardTitle}>{item.title}</Text>
             <Text style={styles.cardSubtitle}>{item.subtitle}</Text>

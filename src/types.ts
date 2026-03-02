@@ -23,10 +23,6 @@ export interface RouteConfig {
   };
 }
 
-export interface RouterConfig {
-  routes: Record<string, RouteConfig>;
-}
-
 // ---------------------------------------------------------------------------
 // Navigation state types
 // ---------------------------------------------------------------------------
@@ -65,7 +61,7 @@ export type NavigatorState = StackState | TabState;
 // Router instance
 // ---------------------------------------------------------------------------
 
-export interface RouterInstance<TConfig extends RouterConfig = RouterConfig> {
+export interface RouterInstance<TConfig extends RouteConfig = RouteConfig> {
   config: TConfig;
   /** Flattened route patterns for matching */
   patterns: RoutePattern[];
@@ -171,7 +167,7 @@ export type RegisteredRouter = Register extends { router: infer R }
 // ---------------------------------------------------------------------------
 
 /** Helper: join path segments */
-type JoinPath<A extends string, B extends string> = A extends '/'
+type JoinPath<A extends string, B extends string> = A extends ''
   ? `/${B}`
   : `${A}/${B}`;
 
@@ -203,11 +199,11 @@ type ReplaceParams<T extends string> =
 export type ValidPaths = Register extends {
   router: {
     config: {
-      routes: infer R extends Record<string, RouteConfig>;
+      children: infer C extends Record<string, RouteConfig>;
     };
   };
 }
-  ? ReplaceParams<ExtractPaths<R>>
+  ? ReplaceParams<ExtractPaths<C>>
   : string;
 
 // ---------------------------------------------------------------------------

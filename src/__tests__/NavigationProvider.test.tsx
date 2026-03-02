@@ -11,15 +11,11 @@ const DetailsScreen = () => <Text>Details</Text>;
 const AboutScreen = () => <Text>About</Text>;
 
 const router = createRouter({
-  routes: {
-    app: {
-      navigator: 'stack',
-      children: {
-        home: { component: HomeScreen },
-        details: { component: DetailsScreen },
-        about: { component: AboutScreen },
-      },
-    },
+  navigator: 'stack',
+  children: {
+    home: { component: HomeScreen },
+    details: { component: DetailsScreen },
+    about: { component: AboutScreen },
   },
 });
 
@@ -46,7 +42,7 @@ describe('NavigationProvider', () => {
     expect(getByText('Home')).toBeTruthy();
 
     act(() => {
-      navigate('/app/details');
+      navigate('/details');
     });
 
     expect(getByText('Details')).toBeTruthy();
@@ -58,7 +54,7 @@ describe('NavigationProvider', () => {
     );
 
     act(() => {
-      navigate('/app/details');
+      navigate('/details');
     });
 
     expect(getByText('Details')).toBeTruthy();
@@ -77,13 +73,13 @@ describe('NavigationProvider', () => {
     );
 
     act(() => {
-      navigate('/app/details');
+      navigate('/details');
     });
 
     expect(getByText('Details')).toBeTruthy();
 
     act(() => {
-      replace('/app/about');
+      replace('/about');
     });
 
     expect(getByText('About')).toBeTruthy();

@@ -23,7 +23,7 @@ export function SettingsScreen() {
       </View>
       <Pressable
         style={styles.nestingButton}
-        onPress={() => navigate('/home/settings/1')}
+        onPress={() => navigate('/settings/1')}
       >
         <Text style={styles.nestingButtonText}>Test Nesting</Text>
       </Pressable>

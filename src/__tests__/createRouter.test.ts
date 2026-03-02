@@ -3,7 +3,8 @@ import { createRouter } from '../createRouter';
 describe('createRouter', () => {
   it('returns router with original config', () => {
     const config = {
-      routes: {
+      navigator: 'stack' as const,
+      children: {
         home: { component: () => null },
       },
     };
@@ -13,7 +14,8 @@ describe('createRouter', () => {
 
   it('flattens flat routes into patterns', () => {
     const router = createRouter({
-      routes: {
+      navigator: 'stack',
+      children: {
         home: { component: () => null },
         about: { component: () => null },
       },
@@ -24,33 +26,25 @@ describe('createRouter', () => {
 
   it('flattens nested children', () => {
     const router = createRouter({
-      routes: {
-        home: {
-          navigator: 'tabs',
-          children: {
-            feed: { component: () => null },
-            settings: { component: () => null },
-          },
-        },
+      navigator: 'tabs',
+      children: {
+        feed: { component: () => null },
+        settings: { component: () => null },
       },
     });
     const paths = router.patterns.map((p) => p.path);
-    expect(paths).toContain('/home/feed');
-    expect(paths).toContain('/home/settings');
+    expect(paths).toContain('/feed');
+    expect(paths).toContain('/settings');
   });
 
   it('extracts paramNames from $ segments', () => {
     const router = createRouter({
-      routes: {
-        home: {
+      navigator: 'stack',
+      children: {
+        feed: {
           navigator: 'stack',
           children: {
-            feed: {
-              navigator: 'stack',
-              children: {
-                $itemId: { component: () => null },
-              },
-            },
+            $itemId: { component: () => null },
           },
         },
       },
@@ -62,60 +56,48 @@ describe('createRouter', () => {
 
   it('builds navigatorPath array for nested routes', () => {
     const router = createRouter({
-      routes: {
-        home: {
-          navigator: 'tabs',
+      navigator: 'tabs',
+      children: {
+        feed: {
+          navigator: 'stack',
           children: {
-            feed: {
-              navigator: 'stack',
-              children: {
-                $itemId: { component: () => null },
-              },
-            },
-            settings: { component: () => null },
+            $itemId: { component: () => null },
           },
         },
+        settings: { component: () => null },
       },
     });
     const pattern = router.patterns.find((p) => p.path.includes('$itemId'));
     expect(pattern).toBeDefined();
     expect(pattern!.navigatorPath).toEqual([
-      { name: 'home', type: 'tabs', childName: 'feed' },
+      { name: '/', type: 'tabs', childName: 'feed' },
       { name: 'feed', type: 'stack', childName: '$itemId' },
     ]);
   });
 
   it('handles root-level stack navigator', () => {
     const router = createRouter({
-      routes: {
-        app: {
-          navigator: 'stack',
-          children: {
-            login: { component: () => null },
-            main: { component: () => null },
-          },
-        },
+      navigator: 'stack',
+      children: {
+        login: { component: () => null },
+        main: { component: () => null },
       },
     });
-    const loginPattern = router.patterns.find((p) => p.path === '/app/login');
+    const loginPattern = router.patterns.find((p) => p.path === '/login');
     expect(loginPattern).toBeDefined();
     expect(loginPattern!.navigatorPath).toEqual([
-      { name: 'app', type: 'stack', childName: 'login' },
+      { name: '/', type: 'stack', childName: 'login' },
     ]);
   });
 
   it('sets routeName on each pattern', () => {
     const router = createRouter({
-      routes: {
-        home: {
-          navigator: 'tabs',
-          children: {
-            feed: { component: () => null },
-          },
-        },
+      navigator: 'tabs',
+      children: {
+        feed: { component: () => null },
       },
     });
-    const pattern = router.patterns.find((p) => p.path === '/home/feed');
+    const pattern = router.patterns.find((p) => p.path === '/feed');
     expect(pattern!.routeName).toBe('feed');
   });
 
@@ -123,50 +105,42 @@ describe('createRouter', () => {
     const FeedScreen = () => null;
     const DetailScreen = () => null;
     const router = createRouter({
-      routes: {
-        home: {
-          navigator: 'tabs',
+      navigator: 'tabs',
+      children: {
+        feed: {
+          component: FeedScreen,
+          navigator: 'stack',
           children: {
-            feed: {
-              component: FeedScreen,
-              navigator: 'stack',
-              children: {
-                $itemId: { component: DetailScreen },
-              },
-            },
+            $itemId: { component: DetailScreen },
           },
         },
       },
     });
     const paths = router.patterns.map((p) => p.path);
-    // Should have both /home/feed (index) AND /home/feed/$itemId (child)
-    expect(paths).toContain('/home/feed');
-    expect(paths).toContain('/home/feed/$itemId');
-    // The /home/feed pattern should reference FeedScreen
-    const feedPattern = router.patterns.find((p) => p.path === '/home/feed');
+    // Should have both /feed (index) AND /feed/$itemId (child)
+    expect(paths).toContain('/feed');
+    expect(paths).toContain('/feed/$itemId');
+    // The /feed pattern should reference FeedScreen
+    const feedPattern = router.patterns.find((p) => p.path === '/feed');
     expect(feedPattern!.routeConfig.component).toBe(FeedScreen);
     expect(feedPattern!.routeName).toBe('feed');
-    // navigatorPath for the index route: just the tabs segment
+    // navigatorPath for the index route: just the root tabs segment
     expect(feedPattern!.navigatorPath).toEqual([
-      { name: 'home', type: 'tabs', childName: 'feed' },
+      { name: '/', type: 'tabs', childName: 'feed' },
     ]);
   });
 
   it('extracts multiple params from nested dynamic segments', () => {
     const router = createRouter({
-      routes: {
-        users: {
+      navigator: 'stack',
+      children: {
+        $userId: {
           navigator: 'stack',
           children: {
-            $userId: {
+            posts: {
               navigator: 'stack',
               children: {
-                posts: {
-                  navigator: 'stack',
-                  children: {
-                    $postId: { component: () => null },
-                  },
-                },
+                $postId: { component: () => null },
               },
             },
           },
@@ -176,5 +150,24 @@ describe('createRouter', () => {
     const pattern = router.patterns.find((p) => p.path.includes('$postId'));
     expect(pattern).toBeDefined();
     expect(pattern!.paramNames).toEqual(['userId', 'postId']);
+  });
+
+  it('throws if root config has no navigator or children', () => {
+    expect(() =>
+      createRouter({ component: () => null })
+    ).toThrow('Root config must have both "navigator" and "children" properties');
+  });
+
+  it('root navigator contributes no path segment', () => {
+    const router = createRouter({
+      navigator: 'tabs',
+      children: {
+        feed: { component: () => null },
+        profile: { component: () => null },
+      },
+    });
+    const paths = router.patterns.map((p) => p.path);
+    // Paths should start directly from / with no root segment
+    expect(paths).toEqual(['/feed', '/profile']);
   });
 });

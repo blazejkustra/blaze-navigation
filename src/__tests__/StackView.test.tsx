@@ -23,7 +23,7 @@ function makeEntry(
 }
 
 describe('StackView', () => {
-  it('renders ScreenStack with one ScreenStackItem per entry', () => {
+  it('renders Stack.Host with one Stack.Screen per entry', () => {
     const state: StackState = {
       type: 'stack',
       entries: [makeEntry('home', 'home-0')],
@@ -33,8 +33,8 @@ describe('StackView', () => {
       <StackView state={state} components={components} onDismiss={() => {}} />
     );
 
-    expect(getByTestId('ScreenStack')).toBeTruthy();
-    expect(queryAllByTestId(/^ScreenStackItem-/)).toHaveLength(1);
+    expect(getByTestId('StackHost')).toBeTruthy();
+    expect(queryAllByTestId(/^StackScreen-/)).toHaveLength(1);
   });
 
   it('renders correct component for each entry', () => {
@@ -65,7 +65,7 @@ describe('StackView', () => {
       <StackView state={state} components={components} onDismiss={() => {}} />
     );
 
-    expect(queryAllByTestId(/^ScreenStackItem-/)).toHaveLength(3);
+    expect(queryAllByTestId(/^StackScreen-/)).toHaveLength(3);
     expect(queryAllByText('Details Screen')).toHaveLength(3);
   });
 
@@ -76,33 +76,32 @@ describe('StackView', () => {
       entries: [makeEntry('home', 'home-0'), makeEntry('details', 'details-1')],
     };
 
-    // Use a ref to capture onDismissed callbacks
-    const dismissCallbacks: Record<string, () => void> = {};
-    const MockScreenStackItem = ({
+    // Capture onDismiss callbacks from Stack.Screen
+    const dismissCallbacks: Record<string, (key: string) => void> = {};
+    const MockStackScreen = ({
       children,
-      screenId,
-      onDismissed,
+      screenKey,
+      onDismiss: onDismissProp,
       ...props
     }: any) => {
-      if (onDismissed) dismissCallbacks[screenId] = onDismissed;
+      if (onDismissProp) dismissCallbacks[screenKey] = onDismissProp;
       return (
-        <View testID={`ScreenStackItem-${screenId}`} {...props}>
+        <View testID={`StackScreen-${screenKey}`} {...props}>
           {children}
         </View>
       );
     };
 
-    jest.spyOn(
-      require('react-native-screens'),
-      'ScreenStackItem'
-    ).mockImplementation(MockScreenStackItem);
+    jest
+      .spyOn(require('react-native-screens/experimental').Stack, 'Screen')
+      .mockImplementation(MockStackScreen);
 
     render(
       <StackView state={state} components={components} onDismiss={onDismiss} />
     );
 
-    // Simulate native dismiss
-    dismissCallbacks['details-1']!();
+    // Simulate native dismiss — experimental API passes screenKey
+    dismissCallbacks['details-1']!('details-1');
     expect(onDismiss).toHaveBeenCalledWith('details-1');
 
     jest.restoreAllMocks();
@@ -111,12 +110,9 @@ describe('StackView', () => {
   it('wraps each entry in ScreenProvider with correct params', () => {
     const state: StackState = {
       type: 'stack',
-      entries: [
-        makeEntry('home', 'home-0', { itemId: '42' }),
-      ],
+      entries: [makeEntry('home', 'home-0', { itemId: '42' })],
     };
 
-    // ScreenProvider should set up context — we can verify by the rendered component
     const { getByText } = render(
       <StackView state={state} components={components} onDismiss={() => {}} />
     );
@@ -132,9 +128,7 @@ describe('StackView', () => {
 
     const state: StackState = {
       type: 'stack',
-      entries: [
-        { ...makeEntry('home', 'home-0'), nestedState },
-      ],
+      entries: [{ ...makeEntry('home', 'home-0'), nestedState }],
     };
 
     const renderContent = jest.fn((entry: StackEntry) => {

@@ -97,27 +97,25 @@ describe('TabView', () => {
     });
 
     const focusCallbacks: Record<string, (e: any) => void> = {};
-    jest.spyOn(require('react-native-screens').Tabs, 'Host').mockImplementation(
-      ({ children, onNativeFocusChange, ...props }: any) => {
-        if (onNativeFocusChange) focusCallbacks['host'] = onNativeFocusChange;
-        return (
-          <View testID="TabsHost" {...props}>
-            {children}
-          </View>
-        );
-      }
-    );
+    jest
+      .spyOn(require('react-native-screens').Tabs, 'Host')
+      .mockImplementation(
+        ({ children, onNativeFocusChange, ...props }: any) => {
+          if (onNativeFocusChange) focusCallbacks.host = onNativeFocusChange;
+          return (
+            <View testID="TabsHost" {...props}>
+              {children}
+            </View>
+          );
+        }
+      );
 
     render(
-      <TabView
-        state={state}
-        components={components}
-        onTabFocus={onTabFocus}
-      />
+      <TabView state={state} components={components} onTabFocus={onTabFocus} />
     );
 
     // Simulate native focus change
-    focusCallbacks['host']!({ nativeEvent: { tabKey: 'search' } });
+    focusCallbacks.host!({ nativeEvent: { tabKey: 'search' } });
     expect(onTabFocus).toHaveBeenCalledWith('search');
 
     jest.restoreAllMocks();

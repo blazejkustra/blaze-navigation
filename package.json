@@ -82,6 +82,7 @@
     "react": "19.2.0",
     "react-native": "0.83.2",
     "react-native-builder-bob": "^0.40.18",
+    "react-native-screens": "^4.24.0",
     "react-test-renderer": "19.2.0",
     "release-it": "^19.0.4",
     "turbo": "^2.5.6",
@@ -126,7 +127,10 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^react-native-screens/experimental$": "<rootDir>/src/__mocks__/react-native-screens-experimental"
+    }
   },
   "commitlint": {
     "extends": [

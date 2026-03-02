@@ -55,9 +55,7 @@ describe('createRouter', () => {
         },
       },
     });
-    const pattern = router.patterns.find((p) =>
-      p.path.includes('$itemId')
-    );
+    const pattern = router.patterns.find((p) => p.path.includes('$itemId'));
     expect(pattern).toBeDefined();
     expect(pattern!.paramNames).toEqual(['itemId']);
   });
@@ -79,9 +77,7 @@ describe('createRouter', () => {
         },
       },
     });
-    const pattern = router.patterns.find((p) =>
-      p.path.includes('$itemId')
-    );
+    const pattern = router.patterns.find((p) => p.path.includes('$itemId'));
     expect(pattern).toBeDefined();
     expect(pattern!.navigatorPath).toEqual([
       { name: 'home', type: 'tabs', childName: 'feed' },
@@ -123,6 +119,39 @@ describe('createRouter', () => {
     expect(pattern!.routeName).toBe('feed');
   });
 
+  it('creates pattern for route with both component and navigator/children', () => {
+    const FeedScreen = () => null;
+    const DetailScreen = () => null;
+    const router = createRouter({
+      routes: {
+        home: {
+          navigator: 'tabs',
+          children: {
+            feed: {
+              component: FeedScreen,
+              navigator: 'stack',
+              children: {
+                $itemId: { component: DetailScreen },
+              },
+            },
+          },
+        },
+      },
+    });
+    const paths = router.patterns.map((p) => p.path);
+    // Should have both /home/feed (index) AND /home/feed/$itemId (child)
+    expect(paths).toContain('/home/feed');
+    expect(paths).toContain('/home/feed/$itemId');
+    // The /home/feed pattern should reference FeedScreen
+    const feedPattern = router.patterns.find((p) => p.path === '/home/feed');
+    expect(feedPattern!.routeConfig.component).toBe(FeedScreen);
+    expect(feedPattern!.routeName).toBe('feed');
+    // navigatorPath for the index route: just the tabs segment
+    expect(feedPattern!.navigatorPath).toEqual([
+      { name: 'home', type: 'tabs', childName: 'feed' },
+    ]);
+  });
+
   it('extracts multiple params from nested dynamic segments', () => {
     const router = createRouter({
       routes: {
@@ -144,9 +173,7 @@ describe('createRouter', () => {
         },
       },
     });
-    const pattern = router.patterns.find((p) =>
-      p.path.includes('$postId')
-    );
+    const pattern = router.patterns.find((p) => p.path.includes('$postId'));
     expect(pattern).toBeDefined();
     expect(pattern!.paramNames).toEqual(['userId', 'postId']);
   });

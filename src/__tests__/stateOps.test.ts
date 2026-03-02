@@ -62,6 +62,31 @@ const nestedRouter = createRouter({
   },
 });
 
+// Config matching example app: route with both component AND navigator
+const FeedScreen = () => null;
+const DetailScreen = () => null;
+const ProfileScreen = () => null;
+const SettingsScreen = () => null;
+const exampleRouter = createRouter({
+  routes: {
+    home: {
+      navigator: 'tabs',
+      children: {
+        feed: {
+          component: FeedScreen,
+          navigator: 'stack',
+          tabOptions: { title: 'Feed' },
+          children: {
+            $itemId: { component: DetailScreen },
+          },
+        },
+        profile: { component: ProfileScreen },
+        settings: { component: SettingsScreen },
+      },
+    },
+  },
+});
+
 describe('createInitialState', () => {
   it('creates correct initial stack state', () => {
     const state = createInitialState(stackRouter);
@@ -78,8 +103,23 @@ describe('createInitialState', () => {
     const s = state as TabState;
     expect(s.activeKey).toBe('feed');
     expect(Object.keys(s.tabs)).toEqual(['feed', 'search', 'profile']);
-    expect(s.tabs['feed']!.rendered).toBe(true);
-    expect(s.tabs['search']!.rendered).toBe(false);
+    expect(s.tabs.feed!.rendered).toBe(true);
+    expect(s.tabs.search!.rendered).toBe(false);
+  });
+
+  it('creates correct initial state for route with component + navigator', () => {
+    const state = createInitialState(exampleRouter);
+    expect(state.type).toBe('tabs');
+    const s = state as TabState;
+    expect(s.activeKey).toBe('feed');
+    const feedTab = s.tabs.feed!;
+    // Feed tab should have nested stack
+    expect(feedTab.nestedState).toBeDefined();
+    expect(feedTab.nestedState!.type).toBe('stack');
+    const feedStack = feedTab.nestedState as StackState;
+    // Initial entry should be 'feed' (the index component), NOT '$itemId'
+    expect(feedStack.entries).toHaveLength(1);
+    expect(feedStack.entries[0]!.routeName).toBe('feed');
   });
 
   it('creates correct initial nested state (tabs > stack)', () => {
@@ -87,7 +127,7 @@ describe('createInitialState', () => {
     expect(state.type).toBe('tabs');
     const s = state as TabState;
     expect(s.activeKey).toBe('feed');
-    const feedTab = s.tabs['feed']!;
+    const feedTab = s.tabs.feed!;
     expect(feedTab.nestedState).toBeDefined();
     expect(feedTab.nestedState!.type).toBe('stack');
     const nested = feedTab.nestedState as StackState;
@@ -191,9 +231,9 @@ describe('switchTab', () => {
     };
     const next = switchTab(state, 'search');
     expect(next.activeKey).toBe('search');
-    expect(next.tabs['search']!.rendered).toBe(true);
+    expect(next.tabs.search!.rendered).toBe(true);
     // Feed remains rendered
-    expect(next.tabs['feed']!.rendered).toBe(true);
+    expect(next.tabs.feed!.rendered).toBe(true);
   });
 });
 
@@ -213,7 +253,7 @@ describe('navigateToMatch', () => {
     const next = navigateToMatch(state, match);
     const s = next as TabState;
     expect(s.activeKey).toBe('search');
-    expect(s.tabs['search']!.rendered).toBe(true);
+    expect(s.tabs.search!.rendered).toBe(true);
   });
 
   it('handles nested: switch tab THEN push stack', () => {
@@ -222,7 +262,7 @@ describe('navigateToMatch', () => {
     const next = navigateToMatch(state, match);
     const s = next as TabState;
     expect(s.activeKey).toBe('feed');
-    const feedNested = s.tabs['feed']!.nestedState as StackState;
+    const feedNested = s.tabs.feed!.nestedState as StackState;
     expect(feedNested.entries).toHaveLength(2);
     expect(feedNested.entries[1]!.routeName).toBe('$itemId');
     expect(feedNested.entries[1]!.params).toEqual({ itemId: '42' });
@@ -234,6 +274,20 @@ describe('navigateToMatch', () => {
     const next = navigateToMatch(state, match);
     const s = next as StackState;
     expect(s.entries[1]!.params).toEqual({ itemId: '99' });
+  });
+
+  it('pushes detail onto nested stack when route has component + navigator (example app)', () => {
+    const state = createInitialState(exampleRouter);
+    const match = matchPath('/home/feed/42', exampleRouter.patterns)!;
+    expect(match).not.toBeNull();
+    const next = navigateToMatch(state, match);
+    const s = next as TabState;
+    expect(s.activeKey).toBe('feed');
+    const feedStack = s.tabs.feed!.nestedState as StackState;
+    expect(feedStack.entries).toHaveLength(2);
+    expect(feedStack.entries[0]!.routeName).toBe('feed');
+    expect(feedStack.entries[1]!.routeName).toBe('$itemId');
+    expect(feedStack.entries[1]!.params).toEqual({ itemId: '42' });
   });
 });
 
@@ -260,7 +314,7 @@ describe('goBackReducer', () => {
     const popped = goBackReducer(pushed);
     const s = popped as TabState;
     expect(s.activeKey).toBe('feed');
-    const feedNested = s.tabs['feed']!.nestedState as StackState;
+    const feedNested = s.tabs.feed!.nestedState as StackState;
     expect(feedNested.entries).toHaveLength(1);
     expect(feedNested.entries[0]!.routeName).toBe('list');
   });

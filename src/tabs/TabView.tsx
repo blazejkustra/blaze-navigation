@@ -19,9 +19,7 @@ export function TabView({
   return (
     <Tabs.Host
       experimentalControlNavigationStateInJS
-      onNativeFocusChange={(e) => {
-        onTabFocus(e.nativeEvent.tabKey);
-      }}
+      onNativeFocusChange={(e) => onTabFocus(e.nativeEvent.tabKey)}
     >
       {Object.entries(state.tabs).map(([key, tab]) => {
         const isFocused = key === state.activeKey;
@@ -29,10 +27,22 @@ export function TabView({
 
         let content: React.ReactNode = null;
         if (tab.rendered) {
-          if (renderContent && tab.nestedState) {
+          if (renderContent && tab.nestedState && isFocused) {
+            // Only mount nested navigators (Stack.Host) for the active tab.
+            // The native Stack.Host gets corrupted when hidden inside an
+            // unfocused Tabs.Screen. JS state preserves the stack entries,
+            // so re-mounting when the tab regains focus is safe.
             content = renderContent(tab);
           } else if (Component) {
             content = <Component />;
+          } else if (tab.nestedState && !isFocused) {
+            // Unfocused tab with nested navigator — render nothing,
+            // the tab content is hidden anyway.
+            content = null;
+          } else {
+            console.warn(
+              '[blaze-navigation] No component found for tabKey: ' + key
+            );
           }
         }
 
@@ -41,6 +51,10 @@ export function TabView({
             key={key}
             tabKey={key}
             isFocused={isFocused}
+            title={tab.tabOptions?.title}
+            icon={tab.tabOptions?.icon}
+            selectedIcon={tab.tabOptions?.selectedIcon}
+            badgeValue={tab.tabOptions?.badgeValue}
           >
             <ScreenProvider
               route={{

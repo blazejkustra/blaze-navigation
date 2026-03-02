@@ -21,7 +21,19 @@ function flattenRoutes(
       .map((s) => s.slice(1));
 
     if (config.children && config.navigator) {
-      // This is a navigator node — recurse into children
+      // If this navigator also has a component, create an "index" leaf pattern for it
+      if (config.component) {
+        patterns.push({
+          path,
+          segments,
+          paramNames,
+          routeName: name,
+          routeConfig: config,
+          navigatorPath,
+        });
+      }
+
+      // Recurse into children
       for (const [childName, childConfig] of Object.entries(config.children)) {
         const segment: NavigatorSegment = {
           name,
@@ -51,7 +63,10 @@ function flattenRoutes(
   return patterns;
 }
 
-export function createRouter(config: RouterConfig): RouterInstance {
+export function createRouter<TConfig extends RouterConfig>(
+  config: TConfig
+): RouterInstance<TConfig> {
   const patterns = flattenRoutes(config.routes, '', []);
+
   return { config, patterns };
 }

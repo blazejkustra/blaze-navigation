@@ -1,13 +1,7 @@
-import React from 'react';
 import { View } from 'react-native';
 
-export const ScreenStack = ({
-  children,
-  ...props
-}: {
-  children?: React.ReactNode;
-  [key: string]: any;
-}) => (
+// Legacy stack API
+export const ScreenStack = ({ children, ...props }: any) => (
   <View testID="ScreenStack" {...props}>
     {children}
   </View>
@@ -17,15 +11,8 @@ export const ScreenStackItem = ({
   children,
   screenId,
   activityState,
-  onDismissed,
   ...props
-}: {
-  children?: React.ReactNode;
-  screenId?: string;
-  activityState?: number;
-  onDismissed?: () => void;
-  [key: string]: any;
-}) => (
+}: any) => (
   <View
     testID={`ScreenStackItem-${screenId}`}
     accessibilityState={{ selected: activityState === 2 }}
@@ -35,29 +22,14 @@ export const ScreenStackItem = ({
   </View>
 );
 
+// Tabs API
 export const Tabs = {
-  Host: ({
-    children,
-    ...props
-  }: {
-    children?: React.ReactNode;
-    [key: string]: any;
-  }) => (
+  Host: ({ children, ...props }: any) => (
     <View testID="TabsHost" {...props}>
       {children}
     </View>
   ),
-  Screen: ({
-    children,
-    tabKey,
-    isFocused,
-    ...props
-  }: {
-    children?: React.ReactNode;
-    tabKey?: string;
-    isFocused?: boolean;
-    [key: string]: any;
-  }) => (
+  Screen: ({ children, tabKey, isFocused, ...props }: any) => (
     <View testID={`TabsScreen-${tabKey}`} {...props}>
       {isFocused ? children : null}
     </View>

@@ -64,7 +64,11 @@ describe('useNavigationListener', () => {
 
     // Emit a focus event for matching route
     const { emitNavigationEvent } = require('../hooks/useListeners');
-    emitNavigationEvent('focus', { key: 'screen-1', path: '/test', name: 'test' });
+    emitNavigationEvent('focus', {
+      key: 'screen-1',
+      path: '/test',
+      name: 'test',
+    });
 
     expect(callback).toHaveBeenCalledTimes(1);
   });
@@ -120,7 +124,11 @@ describe('useNavigationListener', () => {
     unmount();
 
     const { emitNavigationEvent } = require('../hooks/useListeners');
-    emitNavigationEvent('focus', { key: 'screen-1', path: '/test', name: 'test' });
+    emitNavigationEvent('focus', {
+      key: 'screen-1',
+      path: '/test',
+      name: 'test',
+    });
 
     expect(callback).not.toHaveBeenCalled();
   });

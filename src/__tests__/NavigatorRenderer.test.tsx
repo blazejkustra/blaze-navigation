@@ -3,7 +3,12 @@ import { render } from '@testing-library/react-native';
 import { Text } from 'react-native';
 import { NavigatorRenderer } from '../NavigatorRenderer';
 import { createRouter } from '../createRouter';
-import { createInitialState, navigateToMatch, goBackReducer, resetKeyCounter } from '../stateOps';
+import {
+  createInitialState,
+  navigateToMatch,
+  goBackReducer,
+  resetKeyCounter,
+} from '../stateOps';
 import { matchPath } from '../matchPath';
 jest.mock('react-native-screens');
 
@@ -55,7 +60,9 @@ const stackWithTabsRouter = createRouter({
   },
 });
 
-function getAllComponents(router: ReturnType<typeof createRouter>): Record<string, React.ComponentType<any>> {
+function getAllComponents(
+  router: ReturnType<typeof createRouter>
+): Record<string, React.ComponentType<any>> {
   const result: Record<string, React.ComponentType<any>> = {};
   for (const pattern of router.patterns) {
     if (pattern.routeConfig.component) {
@@ -148,21 +155,26 @@ describe('NavigatorRenderer', () => {
       const navigated = navigateToMatch(state, match);
       const components = getAllComponents(tabsWithStackRouter);
 
-      // We need to get the dismiss callback from StackView
-      // The NavigatorRenderer should wire up onDismiss → dispatch DISMISS
-      const dismissCallbacks: Record<string, () => void> = {};
-      jest.spyOn(
-        require('react-native-screens'),
-        'ScreenStackItem'
-      ).mockImplementation(({ children, screenId, onDismissed, ...props }: any) => {
-        const { View } = require('react-native');
-        if (onDismissed) dismissCallbacks[screenId] = onDismissed;
-        return (
-          <View testID={`ScreenStackItem-${screenId}`} {...props}>
-            {children}
-          </View>
+      // Capture onDismiss callbacks from Stack.Screen
+      const dismissCallbacks: Record<string, (key: string) => void> = {};
+      jest
+        .spyOn(require('react-native-screens/experimental').Stack, 'Screen')
+        .mockImplementation(
+          ({
+            children,
+            screenKey,
+            onDismiss: onDismissProp,
+            ...props
+          }: any) => {
+            const { View } = require('react-native');
+            if (onDismissProp) dismissCallbacks[screenKey] = onDismissProp;
+            return (
+              <View testID={`StackScreen-${screenKey}`} {...props}>
+                {children}
+              </View>
+            );
+          }
         );
-      });
 
       render(
         <NavigatorRenderer
@@ -174,10 +186,15 @@ describe('NavigatorRenderer', () => {
       );
 
       // Find the pushed screen key and dismiss it
-      const pushedKey = Object.keys(dismissCallbacks).find(k => k.includes('$itemId'));
+      const pushedKey = Object.keys(dismissCallbacks).find((k) =>
+        k.includes('$itemId')
+      );
       if (pushedKey) {
-        dismissCallbacks[pushedKey]!();
-        expect(dispatch).toHaveBeenCalledWith({ type: 'DISMISS', key: pushedKey });
+        dismissCallbacks[pushedKey]!(pushedKey);
+        expect(dispatch).toHaveBeenCalledWith({
+          type: 'DISMISS',
+          key: pushedKey,
+        });
       }
 
       jest.restoreAllMocks();

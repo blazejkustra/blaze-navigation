@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScreenStack, ScreenStackItem } from 'react-native-screens';
+import { Stack } from 'react-native-screens/experimental';
 import { ScreenProvider } from '../ScreenProvider';
 import type { StackState, StackEntry } from '../types';
 
@@ -17,7 +17,7 @@ export function StackView({
   renderContent,
 }: StackViewProps) {
   return (
-    <ScreenStack style={{ flex: 1 }}>
+    <Stack.Host>
       {state.entries.map((entry, index) => {
         const isTop = index === state.entries.length - 1;
         const Component = components[entry.routeName];
@@ -28,16 +28,26 @@ export function StackView({
         } else if (Component) {
           content = <Component />;
         } else {
+          console.warn(
+            `[blaze-navigation] No component found for routeName: ${entry.routeName}`
+          );
           content = null;
         }
 
+        const isRoot = index === 0;
+
         return (
-          <ScreenStackItem
+          <Stack.Screen
             key={entry.key}
-            screenId={entry.key}
-            activityState={isTop ? 2 : 0}
-            onDismissed={() => onDismiss(entry.key)}
-            style={{ flex: 1 }}
+            screenKey={entry.key}
+            activityMode="attached"
+            preventNativeDismiss={isRoot}
+            onDismiss={
+              isRoot ? undefined : (screenKey: string) => onDismiss(screenKey)
+            }
+            onNativeDismiss={
+              isRoot ? undefined : (screenKey: string) => onDismiss(screenKey)
+            }
           >
             <ScreenProvider
               route={{
@@ -50,9 +60,9 @@ export function StackView({
             >
               {content}
             </ScreenProvider>
-          </ScreenStackItem>
+          </Stack.Screen>
         );
       })}
-    </ScreenStack>
+    </Stack.Host>
   );
 }

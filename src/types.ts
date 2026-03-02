@@ -50,6 +50,7 @@ export interface TabEntry {
   params: Record<string, string>;
   rendered: boolean;
   nestedState?: NavigatorState;
+  tabOptions?: RouteConfig['tabOptions'];
 }
 
 export interface TabState {
@@ -64,8 +65,8 @@ export type NavigatorState = StackState | TabState;
 // Router instance
 // ---------------------------------------------------------------------------
 
-export interface RouterInstance {
-  config: RouterConfig;
+export interface RouterInstance<TConfig extends RouterConfig = RouterConfig> {
+  config: TConfig;
   /** Flattened route patterns for matching */
   patterns: RoutePattern[];
 }
@@ -95,7 +96,8 @@ export type Action =
   | { type: 'NAVIGATE'; path: string }
   | { type: 'REPLACE'; path: string }
   | { type: 'GO_BACK' }
-  | { type: 'DISMISS'; key: string };
+  | { type: 'DISMISS'; key: string }
+  | { type: 'SWITCH_TAB'; tabKey: string };
 
 // ---------------------------------------------------------------------------
 // Context types
@@ -189,9 +191,11 @@ type ExtractPaths<
 
 /** Replace $param segments with string values */
 type ReplaceParams<T extends string> =
-  T extends `${infer Before}/\$${infer _Param}/${infer After}`
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  T extends `${infer Before}/$${infer _Param}/${infer After}`
     ? `${Before}/${string}/${ReplaceParams<After>}`
-    : T extends `${infer Before}/\$${infer _Param}`
+    : // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    T extends `${infer Before}/$${infer _Param}`
     ? `${Before}/${string}`
     : T;
 
@@ -216,8 +220,10 @@ export type GoBackFn = () => void;
 
 /** Extract params from a path pattern */
 export type ExtractParams<T extends string> =
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   T extends `${infer _}/$${infer Param}/${infer Rest}`
     ? { [K in Param | keyof ExtractParams<Rest>]: string }
-    : T extends `${infer _}/$${infer Param}`
+    : // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    T extends `${infer _}/$${infer Param}`
     ? { [K in Param]: string }
     : Record<string, never>;

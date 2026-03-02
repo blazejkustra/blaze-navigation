@@ -50,9 +50,7 @@ export function NavigatorRenderer({
       <TabView
         state={state}
         components={components}
-        onTabFocus={(tabKey) =>
-          dispatch({ type: 'NAVIGATE', path: tabKey })
-        }
+        onTabFocus={(tabKey) => dispatch({ type: 'SWITCH_TAB', tabKey })}
         renderContent={(tab: TabEntry) => {
           if (tab.nestedState) {
             return (

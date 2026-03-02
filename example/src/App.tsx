@@ -3,6 +3,7 @@ import { FeedScreen } from './screens/FeedScreen';
 import { DetailScreen } from './screens/DetailScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
+import { NestingScreen } from './screens/NestingScreen';
 
 const router = createRouter({
   routes: {
@@ -29,8 +30,14 @@ const router = createRouter({
         },
         settings: {
           component: SettingsScreen,
+          navigator: 'stack',
           tabOptions: {
             title: 'Settings',
+          },
+          children: {
+            $depth: {
+              component: NestingScreen,
+            },
           },
         },
       },

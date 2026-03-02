@@ -57,6 +57,7 @@ function createNavigatorState(
         params: {},
         rendered: childName === firstKey,
         nestedState,
+        tabOptions: childConfig.tabOptions,
       };
     }
 
@@ -67,7 +68,23 @@ function createNavigatorState(
     };
   }
 
-  // Stack navigator — start with first child
+  // Stack navigator:
+  // If the navigator itself has a component, use it as the initial (index) entry
+  if (config.component) {
+    return {
+      type: 'stack',
+      entries: [
+        {
+          key: nextKey(name),
+          routeName: name,
+          path: `/${name}`,
+          params: {},
+        },
+      ],
+    };
+  }
+
+  // Otherwise start with first child
   const [firstName, firstConfig] = childEntries[0]!;
   const nestedState =
     firstConfig.children && firstConfig.navigator
@@ -99,6 +116,7 @@ export function popStack(state: StackState): StackState {
   if (state.entries.length <= 1) {
     return state;
   }
+
   return {
     ...state,
     entries: state.entries.slice(0, -1),
@@ -187,6 +205,10 @@ function applyNavigatorPath(
   return state;
 }
 
+export function canGoBack(state: NavigatorState): boolean {
+  return goBackDeep(state) !== null;
+}
+
 export function goBackReducer(state: NavigatorState): NavigatorState {
   return goBackDeep(state) ?? state;
 }
@@ -207,10 +229,12 @@ function goBackDeep(state: NavigatorState): NavigatorState | null {
         };
       }
     }
+
     // Pop this stack if possible
     if (state.entries.length > 1) {
       return popStack(state);
     }
+
     return null;
   }
 

@@ -35,17 +35,13 @@ describe('NavigationProvider', () => {
   });
 
   it('renders initial route from config', () => {
-    const { getByText } = render(
-      <NavigationProvider router={router} />
-    );
+    const { getByText } = render(<NavigationProvider router={router} />);
 
     expect(getByText('Home')).toBeTruthy();
   });
 
   it('navigate() triggers re-render with new screen', () => {
-    const { getByText } = render(
-      <NavigationProvider router={router} />
-    );
+    const { getByText } = render(<NavigationProvider router={router} />);
 
     expect(getByText('Home')).toBeTruthy();
 

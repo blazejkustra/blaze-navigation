@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, Switch } from 'react-native';
+import { View, Text, StyleSheet, Switch, Pressable } from 'react-native';
 import { useState } from 'react';
+import { navigate } from 'blaze-navigation';
 
 export function SettingsScreen() {
   const [notifications, setNotifications] = useState(true);
@@ -20,6 +21,12 @@ export function SettingsScreen() {
         <Text style={styles.label}>Version</Text>
         <Text style={styles.value}>0.1.0</Text>
       </View>
+      <Pressable
+        style={styles.nestingButton}
+        onPress={() => navigate('/home/settings/1')}
+      >
+        <Text style={styles.nestingButtonText}>Test Nesting</Text>
+      </Pressable>
     </View>
   );
 }
@@ -38,4 +45,17 @@ const styles = StyleSheet.create({
   },
   label: { fontSize: 16 },
   value: { fontSize: 16, color: '#999' },
+  nestingButton: {
+    margin: 20,
+    backgroundColor: '#007AFF',
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 12,
+    alignItems: 'center' as const,
+  },
+  nestingButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600' as const,
+  },
 });

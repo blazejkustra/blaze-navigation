@@ -10,14 +10,31 @@ import type { PathMatch } from './matchPath';
 
 let keyCounter = 0;
 
+/**
+ * Resets the internal key counter used for generating unique screen keys.
+ * Called during provider initialization and in tests.
+ */
 export function resetKeyCounter() {
   keyCounter = 0;
 }
 
+/**
+ * Generates a unique key for a screen entry by combining the route name with an incrementing counter.
+ *
+ * @param name - The route name to use as a prefix.
+ * @returns A unique key string (e.g. "home-0", "profile-1").
+ */
 function nextKey(name: string): string {
   return `${name}-${keyCounter++}`;
 }
 
+/**
+ * Builds the initial navigator state tree from the router config.
+ * Creates nested StackState/TabState structures matching the route hierarchy.
+ *
+ * @param router - The router instance created by `createRouter`.
+ * @returns The root navigator state tree.
+ */
 export function createInitialState(router: RouterInstance): NavigatorState {
   // Find the root navigator from config
   const rootEntries = Object.entries(router.config.routes);
@@ -29,6 +46,15 @@ export function createInitialState(router: RouterInstance): NavigatorState {
   return createNavigatorState(rootName, rootConfig);
 }
 
+/**
+ * Recursively builds a navigator state node (StackState or TabState) from a route config.
+ * For tab navigators, creates tab entries with lazy rendering. For stack navigators,
+ * initializes with either the navigator's own component or the first child as the root entry.
+ *
+ * @param name - The route name for this navigator.
+ * @param config - The route config containing children, navigator type, and component.
+ * @returns The constructed navigator state tree for this node.
+ */
 function createNavigatorState(
   name: string,
   config: RouteConfig
@@ -105,6 +131,13 @@ function createNavigatorState(
   };
 }
 
+/**
+ * Immutably appends a new entry to a stack's entries array.
+ *
+ * @param state - The current stack state.
+ * @param entry - The new stack entry to push.
+ * @returns A new stack state with the entry appended.
+ */
 export function pushStack(state: StackState, entry: StackEntry): StackState {
   return {
     ...state,
@@ -112,6 +145,13 @@ export function pushStack(state: StackState, entry: StackEntry): StackState {
   };
 }
 
+/**
+ * Immutably removes the top entry from a stack.
+ * No-op if only one entry remains (prevents popping the root screen).
+ *
+ * @param state - The current stack state.
+ * @returns A new stack state with the top entry removed, or the same state if at root.
+ */
 export function popStack(state: StackState): StackState {
   if (state.entries.length <= 1) {
     return state;
@@ -123,6 +163,13 @@ export function popStack(state: StackState): StackState {
   };
 }
 
+/**
+ * Switches the active tab and marks it as rendered for lazy mounting.
+ *
+ * @param state - The current tab state.
+ * @param key - The key of the tab to switch to.
+ * @returns A new tab state with the active tab updated.
+ */
 export function switchTab(state: TabState, key: string): TabState {
   return {
     ...state,
@@ -137,6 +184,14 @@ export function switchTab(state: TabState, key: string): TabState {
   };
 }
 
+/**
+ * Core navigation reducer. Walks the matched pattern's navigator path top-down,
+ * switching tabs and pushing stack entries as needed to reach the target route.
+ *
+ * @param state - The current navigator state tree.
+ * @param match - The matched route pattern with extracted params.
+ * @returns A new navigator state reflecting the navigation.
+ */
 export function navigateToMatch(
   state: NavigatorState,
   match: PathMatch
@@ -150,6 +205,15 @@ export function navigateToMatch(
   return applyNavigatorPath(state, match, 0);
 }
 
+/**
+ * Recursively applies a navigator path segment at the given depth, switching tabs
+ * or pushing stack entries to traverse the state tree toward the target route.
+ *
+ * @param state - The current navigator state at this depth.
+ * @param match - The matched route pattern with extracted params.
+ * @param depth - The current index into the navigator path segments.
+ * @returns A new navigator state with the segment applied.
+ */
 function applyNavigatorPath(
   state: NavigatorState,
   match: PathMatch,
@@ -205,14 +269,35 @@ function applyNavigatorPath(
   return state;
 }
 
+/**
+ * Returns whether there is a poppable stack anywhere in the state tree.
+ * Used by Android BackHandler to decide whether to handle or let the app exit.
+ *
+ * @param state - The current navigator state tree.
+ * @returns `true` if going back would pop a stack entry.
+ */
 export function canGoBack(state: NavigatorState): boolean {
   return goBackDeep(state) !== null;
 }
 
+/**
+ * Pops the deepest nested stack that has more than one entry.
+ * Traverses the state tree depth-first to find the innermost poppable stack.
+ *
+ * @param state - The current navigator state tree.
+ * @returns A new navigator state with the deepest stack popped, or the same state if nothing to pop.
+ */
 export function goBackReducer(state: NavigatorState): NavigatorState {
   return goBackDeep(state) ?? state;
 }
 
+/**
+ * Depth-first traversal to find and pop the innermost stack with more than one entry.
+ * Returns null if no stack can be popped.
+ *
+ * @param state - The current navigator state node to search.
+ * @returns A new state with the deepest stack popped, or null if nothing to pop.
+ */
 function goBackDeep(state: NavigatorState): NavigatorState | null {
   if (state.type === 'stack') {
     // Try to pop nested state first (deepest first)

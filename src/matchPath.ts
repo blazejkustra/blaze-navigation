@@ -5,6 +5,14 @@ export interface PathMatch {
   params: Record<string, string>;
 }
 
+/**
+ * Matches a URL path string against registered route patterns, extracting dynamic params.
+ * Returns the best match (static segments preferred over dynamic) or null.
+ *
+ * @param path - The URL path to match (e.g. "/profile/123").
+ * @param patterns - The flattened route patterns from the router instance.
+ * @returns The best matching pattern with extracted params, or null if no match.
+ */
 export function matchPath(
   path: string,
   patterns: RoutePattern[]

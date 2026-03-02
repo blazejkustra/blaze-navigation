@@ -14,6 +14,14 @@ import {
 } from './stateOps';
 import type { RouterInstance, NavigatorState, Action } from './types';
 
+/**
+ * Recursively searches the state tree to find and switch to a tab by key.
+ * Traverses nested navigators (tabs and stacks) depth-first.
+ *
+ * @param state - The current navigator state node to search.
+ * @param tabKey - The key of the tab to switch to.
+ * @returns A new state with the matching tab activated, or the same state if not found.
+ */
 function switchTabDeep(state: NavigatorState, tabKey: string): NavigatorState {
   if (state.type === 'tabs' && state.tabs[tabKey]) {
     return switchTab(state, tabKey);
@@ -55,6 +63,14 @@ function switchTabDeep(state: NavigatorState, tabKey: string): NavigatorState {
   return state;
 }
 
+/**
+ * Main navigation reducer handling NAVIGATE, REPLACE, GO_BACK, DISMISS, and SWITCH_TAB actions.
+ * Delegates to the appropriate state operation for each action type.
+ *
+ * @param state - The current navigator state tree.
+ * @param action - The dispatched action, optionally augmented with the router instance.
+ * @returns The updated navigator state.
+ */
 function navigationReducer(
   state: NavigatorState,
   action: Action & { router?: RouterInstance }
@@ -119,6 +135,14 @@ function navigationReducer(
   return result;
 }
 
+/**
+ * Removes a stack entry by key from anywhere in the state tree.
+ * Searches recursively through nested navigators if the key is not found at the current level.
+ *
+ * @param state - The current navigator state node to search.
+ * @param key - The unique key of the stack entry to dismiss.
+ * @returns A new state with the entry removed, or the same state if not found.
+ */
 function dismissEntry(state: NavigatorState, key: string): NavigatorState {
   if (state.type === 'stack') {
     const filtered = state.entries.filter((e) => e.key !== key);
@@ -167,6 +191,14 @@ interface NavigationProviderProps {
   children?: React.ReactNode;
 }
 
+/**
+ * Root provider component that manages navigation state via `useReducer`,
+ * renders the navigator tree, handles Android back button, and provides
+ * router context to the app.
+ *
+ * @param props.router - The router instance created by `createRouter`.
+ * @param props.children - Optional children rendered alongside the navigator tree.
+ */
 export function NavigationProvider({
   router,
   children,

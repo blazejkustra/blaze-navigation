@@ -10,6 +10,11 @@ interface TabViewProps {
   renderContent?: (tab: TabEntry) => React.ReactNode;
 }
 
+/**
+ * Renders a native tab navigator using `react-native-screens` Tabs API.
+ * Handles lazy rendering, tab focus changes, and only mounts nested navigators
+ * for the active tab to prevent native corruption.
+ */
 export function TabView({
   state,
   components,

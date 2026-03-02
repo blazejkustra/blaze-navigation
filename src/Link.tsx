@@ -18,6 +18,13 @@ interface LinkProps {
   onPress?: PressableProps['onPress'];
 }
 
+/**
+ * Pressable component that navigates to a typed path on press.
+ * Supports `replace` prop for replacing the current screen instead of pushing.
+ *
+ * @param props.to - The path to navigate to.
+ * @param props.replace - If true, replaces the current screen instead of pushing.
+ */
 export function Link({
   to,
   replace: shouldReplace,

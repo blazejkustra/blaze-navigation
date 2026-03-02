@@ -16,6 +16,10 @@ interface NavigatorRendererProps {
   dispatch: (action: Action) => void;
 }
 
+/**
+ * Recursive component that renders either a StackView or TabView based on the
+ * current state node type, and recurses into nested navigators via `renderContent`.
+ */
 export function NavigatorRenderer({
   state,
   router,

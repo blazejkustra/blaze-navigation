@@ -10,6 +10,11 @@ interface StackViewProps {
   renderContent?: (entry: StackEntry) => React.ReactNode;
 }
 
+/**
+ * Renders a native stack navigator using `react-native-screens` experimental Stack API.
+ * Maps stack entries to `Stack.Screen` components with proper dismiss handling
+ * and nested content support.
+ */
 export function StackView({
   state,
   components,

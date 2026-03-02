@@ -6,12 +6,25 @@ import type { NavigationEventType, NavigationListener } from '../types';
 type Listener = NavigationListener;
 const listeners = new Set<Listener>();
 
+/**
+ * Emits a navigation event (focus, blur, beforeNavigate, afterNavigate) to all registered listeners.
+ *
+ * @param type - The navigation event type to emit.
+ * @param route - Optional route info associated with the event.
+ */
 export function emitNavigationEvent(type: NavigationEventType, route?: any) {
   for (const listener of listeners) {
     listener({ type, route });
   }
 }
 
+/**
+ * Registers a navigation event listener that fires on the specified event type.
+ * Cleans up automatically on unmount.
+ *
+ * @param type - The event type to listen for (e.g. "focus", "blur").
+ * @param callback - The callback to invoke when the event fires.
+ */
 export function useNavigationListener(
   type: NavigationEventType,
   callback: () => void

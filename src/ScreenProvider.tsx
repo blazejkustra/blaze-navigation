@@ -9,6 +9,10 @@ interface ScreenProviderProps {
   children: React.ReactNode;
 }
 
+/**
+ * Wraps each screen with ScreenContext, providing route info, params, query,
+ * meta, and focus state to descendant hooks like `useParams`.
+ */
 export function ScreenProvider({
   route,
   meta,

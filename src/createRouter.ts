@@ -63,6 +63,23 @@ function flattenRoutes(
   return patterns;
 }
 
+/**
+ * Creates a router instance from a route configuration, flattening the route tree
+ * into matchable patterns with pre-computed navigator paths.
+ *
+ * @param config - The router configuration defining routes, components, and navigators.
+ * @returns A router instance containing the config and flattened route patterns.
+ *
+ * @example
+ * ```ts
+ * const router = createRouter({
+ *   routes: {
+ *     home: { component: HomeScreen },
+ *     profile: { component: ProfileScreen },
+ *   },
+ * });
+ * ```
+ */
 export function createRouter<TConfig extends RouterConfig>(
   config: TConfig
 ): RouterInstance<TConfig> {

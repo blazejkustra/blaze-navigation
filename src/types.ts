@@ -6,6 +6,7 @@ import type React from 'react';
 
 export interface RouteConfig {
   component?: React.ComponentType<any>;
+  layout?: React.ComponentType<{ children: React.ReactNode }>;
   navigator?: 'stack' | 'tabs';
   children?: Record<string, RouteConfig>;
   /** Route metadata */

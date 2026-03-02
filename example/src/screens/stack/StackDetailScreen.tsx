@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useParams, goBack } from 'blaze-navigation';
 
-export function DetailScreen() {
+export function StackDetailScreen() {
   const { itemId } = useParams<{ itemId: string }>();
 
   return (
@@ -26,7 +26,7 @@ export function DetailScreen() {
         <View style={styles.card}>
           <Text style={styles.label}>Route</Text>
           <View style={styles.codeBadge}>
-            <Text style={styles.codeText}>/home/feed/{itemId}</Text>
+            <Text style={styles.codeText}>/home/{itemId}</Text>
           </View>
         </View>
         <Text style={styles.muted}>

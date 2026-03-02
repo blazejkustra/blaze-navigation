@@ -245,6 +245,21 @@ export function NavigationProvider({
     return result;
   }, [router]);
 
+  const layouts = useMemo(() => {
+    const result: Record<
+      string,
+      React.ComponentType<{ children: React.ReactNode }>
+    > = {};
+
+    for (const pattern of router.patterns) {
+      if (pattern.routeConfig.layout) {
+        result[pattern.routeName] = pattern.routeConfig.layout;
+      }
+    }
+
+    return result;
+  }, [router]);
+
   const navigateFn = useCallback(
     (path: string) => dispatch({ type: 'NAVIGATE', path }),
     [dispatch]
@@ -274,6 +289,7 @@ export function NavigationProvider({
         state={state}
         router={router}
         components={components}
+        layouts={layouts}
         dispatch={dispatch}
       />
       {children}

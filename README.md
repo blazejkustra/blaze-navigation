@@ -23,8 +23,6 @@ npm install blaze-navigation react-native-screens react-native-safe-area-context
 
 `react-native-screens` (>=4.0.0) and `react-native-safe-area-context` (>=5.0.0) are a required peer dependencies.
 
- is a required peer dependency.
-
 ## Quick Start
 
 ### 1. Define your router

@@ -25,10 +25,10 @@ npm install blaze-navigation react-native-screens
 
 ### Peer Dependencies
 
-| Package                | Version  |
-| ---------------------- | -------- |
-| `react`               | `*`      |
-| `react-native`        | `*`      |
+| Package                | Version   |
+| ---------------------- | --------- |
+| `react`                | `*`       |
+| `react-native`         | `*`       |
 | `react-native-screens` | `>=4.0.0` |
 
 ### Basic Setup
@@ -58,18 +58,21 @@ Creates a router instance from a declarative route configuration. The root confi
 ### Signature
 
 ```ts
-function createRouter<TConfig extends RouteConfig>(config: TConfig): RouterInstance<TConfig>
+function createRouter<TConfig extends RouteConfig>(
+  config: TConfig
+): RouterInstance<TConfig>;
 ```
 
 ### Parameters
 
-| Parameter | Type          | Description                                             |
-| --------- | ------------- | ------------------------------------------------------- |
+| Parameter | Type          | Description                                                |
+| --------- | ------------- | ---------------------------------------------------------- |
 | `config`  | `RouteConfig` | Root route config with `navigator` and `children` required |
 
 ### Returns
 
 A `RouterInstance` containing:
+
 - `config` — the original config
 - `patterns` — flattened route patterns used for path matching
 
@@ -152,9 +155,9 @@ Root provider component that manages navigation state, renders the navigator tre
 
 ### Props
 
-| Prop       | Type              | Required | Description                                |
-| ---------- | ----------------- | -------- | ------------------------------------------ |
-| `router`   | `RouterInstance`  | Yes      | Router instance created by `createRouter`  |
+| Prop       | Type              | Required | Description                                        |
+| ---------- | ----------------- | -------- | -------------------------------------------------- |
+| `router`   | `RouterInstance`  | Yes      | Router instance created by `createRouter`          |
 | `children` | `React.ReactNode` | No       | Optional children rendered alongside the navigator |
 
 ### Usage
@@ -172,6 +175,7 @@ function App() {
 ```
 
 The provider automatically:
+
 - Creates the initial navigation state from the router config
 - Registers global `navigate`/`goBack`/`replace` functions
 - Handles Android hardware back button
@@ -187,7 +191,7 @@ Global functions that work anywhere — inside or outside React components. They
 Navigate to a path by pushing onto the deepest stack or switching tabs.
 
 ```ts
-function navigate(path: ValidPaths): void
+function navigate(path: ValidPaths): void;
 ```
 
 ```ts
@@ -202,7 +206,7 @@ navigate('/profile');
 Pop the top screen from the deepest nested stack.
 
 ```ts
-function goBack(): void
+function goBack(): void;
 ```
 
 ```ts
@@ -216,7 +220,7 @@ goBack();
 Replace the current screen — equivalent to going back then navigating.
 
 ```ts
-function replace(path: ValidPaths): void
+function replace(path: ValidPaths): void;
 ```
 
 ```ts
@@ -235,14 +239,14 @@ A `Pressable` component that navigates to a typed path on press.
 
 ### Props
 
-| Prop        | Type                     | Required | Description                              |
-| ----------- | ------------------------ | -------- | ---------------------------------------- |
-| `to`        | `ValidPaths`             | Yes      | Path to navigate to                      |
-| `replace`   | `boolean`                | No       | Replace instead of push (default `false`) |
-| `style`     | `StyleProp<ViewStyle>`   | No       | Style for the `Pressable` wrapper        |
-| `textStyle` | `StyleProp<TextStyle>`   | No       | Style applied when children is a string  |
-| `children`  | `React.ReactNode`        | Yes      | Content to render inside the pressable   |
-| `onPress`   | `PressableProps['onPress']` | No    | Additional press handler                 |
+| Prop        | Type                        | Required | Description                               |
+| ----------- | --------------------------- | -------- | ----------------------------------------- |
+| `to`        | `ValidPaths`                | Yes      | Path to navigate to                       |
+| `replace`   | `boolean`                   | No       | Replace instead of push (default `false`) |
+| `style`     | `StyleProp<ViewStyle>`      | No       | Style for the `Pressable` wrapper         |
+| `textStyle` | `StyleProp<TextStyle>`      | No       | Style applied when children is a string   |
+| `children`  | `React.ReactNode`           | Yes      | Content to render inside the pressable    |
+| `onPress`   | `PressableProps['onPress']` | No       | Additional press handler                  |
 
 ### Usage
 
@@ -274,7 +278,7 @@ import { Link } from 'blaze-navigation';
 Returns the current screen's route parameters. Must be used within a screen rendered by the navigator.
 
 ```ts
-function useParams<T extends Record<string, string>>(): T
+function useParams<T extends Record<string, string>>(): T;
 ```
 
 ```tsx
@@ -294,17 +298,20 @@ function DetailScreen() {
 Registers a navigation event listener. Cleans up automatically on unmount.
 
 ```ts
-function useNavigationListener(type: NavigationEventType, callback: () => void): void
+function useNavigationListener(
+  type: NavigationEventType,
+  callback: () => void
+): void;
 ```
 
 #### Event types
 
-| Event             | Description                                          |
-| ----------------- | ---------------------------------------------------- |
-| `focus`           | Fired when this screen becomes the active screen     |
-| `blur`            | Fired when this screen loses focus                   |
-| `beforeNavigate`  | Fired before any navigation action is processed      |
-| `afterNavigate`   | Fired after a navigation action completes            |
+| Event            | Description                                      |
+| ---------------- | ------------------------------------------------ |
+| `focus`          | Fired when this screen becomes the active screen |
+| `blur`           | Fired when this screen loses focus               |
+| `beforeNavigate` | Fired before any navigation action is processed  |
+| `afterNavigate`  | Fired after a navigation action completes        |
 
 For `focus` and `blur`, the callback only fires for the screen that owns the hook. For `beforeNavigate` and `afterNavigate`, the callback fires globally.
 
@@ -361,8 +368,8 @@ Once registered:
 
 ```ts
 // Type-safe — only valid paths are accepted
-navigate('/home/42');   // OK
-navigate('/unknown');   // Type error
+navigate('/home/42'); // OK
+navigate('/unknown'); // Type error
 
 // Type-safe params
 const { itemId } = useParams<ExtractParams<'/home/$itemId'>>();
@@ -567,7 +574,7 @@ Wraps each screen with `ScreenContext`. Used internally to provide route info to
 interface ScreenProviderProps {
   route: Route;
   meta?: Record<string, unknown>;
-  isFocused?: boolean;   // default: true
+  isFocused?: boolean; // default: true
   children: React.ReactNode;
 }
 ```

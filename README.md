@@ -17,8 +17,8 @@ Blazingly fast & simple React Native navigation
 
 ## API Overview
 
-| Export                  | Type      | Description                                   |
-| ----------------------- | --------- | --------------------------------------------- |
+| Export                  | Type      | Description                                    |
+| ----------------------- | --------- | ---------------------------------------------- |
 | `createRouter`          | Function  | Create a router instance from a route config   |
 | `NavigationProvider`    | Component | Root provider that manages navigation state    |
 | `navigate`              | Function  | Navigate to a path (works outside components)  |
@@ -101,7 +101,7 @@ navigate('/feed/42');
 goBack();
 
 // Or use the Link component
-<Link to="/feed/42">View Item</Link>
+<Link to="/feed/42">View Item</Link>;
 ```
 
 ## Examples

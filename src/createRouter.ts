@@ -102,11 +102,10 @@ export function createRouter<TConfig extends RouteConfig>(
       type: config.navigator,
       childName,
     };
-    const childPatterns = flattenRoutes(
-      { [childName]: childConfig },
-      '',
-      [...rootNavigatorPath, segment]
-    );
+    const childPatterns = flattenRoutes({ [childName]: childConfig }, '', [
+      ...rootNavigatorPath,
+      segment,
+    ]);
     patterns.push(...childPatterns);
   }
 

@@ -153,9 +153,9 @@ describe('createRouter', () => {
   });
 
   it('throws if root config has no navigator or children', () => {
-    expect(() =>
-      createRouter({ component: () => null })
-    ).toThrow('Root config must have both "navigator" and "children" properties');
+    expect(() => createRouter({ component: () => null })).toThrow(
+      'Root config must have both "navigator" and "children" properties'
+    );
   });
 
   it('root navigator contributes no path segment', () => {

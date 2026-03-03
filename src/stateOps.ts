@@ -72,9 +72,7 @@ function createNavigatorState(
           ? createNavigatorState(childName, childConfig)
           : undefined;
 
-      const childPath = isRoot
-        ? `/${childName}`
-        : `/${name}/${childName}`;
+      const childPath = isRoot ? `/${childName}` : `/${name}/${childName}`;
 
       tabs[childName] = {
         key: childName,
@@ -116,9 +114,7 @@ function createNavigatorState(
       ? createNavigatorState(firstName, firstConfig)
       : undefined;
 
-  const firstChildPath = isRoot
-    ? `/${firstName}`
-    : `/${name}/${firstName}`;
+  const firstChildPath = isRoot ? `/${firstName}` : `/${name}/${firstName}`;
 
   return {
     type: 'stack',

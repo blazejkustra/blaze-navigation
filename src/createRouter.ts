@@ -32,7 +32,7 @@ function flattenRoutes(
         });
       }
 
-      // Recurse into children
+      // Recurse into children with a new navigator segment
       for (const [childName, childConfig] of Object.entries(config.children)) {
         const segment: NavigatorSegment = {
           name,
@@ -43,6 +43,33 @@ function flattenRoutes(
           { [childName]: childConfig },
           path,
           [...navigatorPath, segment]
+        );
+        patterns.push(...childPatterns);
+      }
+    } else if (config.children && !config.navigator) {
+      // Route with child path segments but no nested navigator —
+      // children belong to the parent navigator, just with deeper paths
+      if (config.component) {
+        patterns.push({
+          path,
+          segments,
+          paramNames,
+          routeName: name,
+          routeConfig: config,
+          navigatorPath,
+        });
+      }
+
+      // Recurse into children, updating the parent navigator segment's childName
+      // so navigation pushes/switches to the child route correctly
+      for (const [childName, childConfig] of Object.entries(config.children)) {
+        const updatedPath = navigatorPath.map((seg, i) =>
+          i === navigatorPath.length - 1 ? { ...seg, childName } : seg
+        );
+        const childPatterns = flattenRoutes(
+          { [childName]: childConfig },
+          path,
+          updatedPath
         );
         patterns.push(...childPatterns);
       }

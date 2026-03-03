@@ -152,6 +152,92 @@ describe('createRouter', () => {
     expect(pattern!.paramNames).toEqual(['userId', 'postId']);
   });
 
+  it('flattens children without navigator into parent navigator patterns', () => {
+    const HomeScreen = () => null;
+    const RecursiveScreen = () => null;
+    const router = createRouter({
+      navigator: 'stack',
+      children: {
+        home: {
+          component: HomeScreen,
+          children: {
+            $depth: { component: RecursiveScreen },
+          },
+        },
+      },
+    });
+    const paths = router.patterns.map((p) => p.path);
+    expect(paths).toContain('/home');
+    expect(paths).toContain('/home/$depth');
+
+    // /home pattern points to the parent stack
+    const homePattern = router.patterns.find((p) => p.path === '/home');
+    expect(homePattern!.routeName).toBe('home');
+    expect(homePattern!.routeConfig.component).toBe(HomeScreen);
+    expect(homePattern!.navigatorPath).toEqual([
+      { name: '/', type: 'stack', childName: 'home' },
+    ]);
+
+    // /home/$depth updates the parent stack segment's childName to $depth
+    const depthPattern = router.patterns.find((p) => p.path === '/home/$depth');
+    expect(depthPattern!.routeName).toBe('$depth');
+    expect(depthPattern!.routeConfig.component).toBe(RecursiveScreen);
+    expect(depthPattern!.paramNames).toEqual(['depth']);
+    expect(depthPattern!.navigatorPath).toEqual([
+      { name: '/', type: 'stack', childName: '$depth' },
+    ]);
+  });
+
+  it('flattens children without navigator inside a tabs+stack layout', () => {
+    const router = createRouter({
+      navigator: 'tabs',
+      children: {
+        feed: {
+          component: () => null,
+          navigator: 'stack',
+          tabOptions: { title: 'Feed' },
+          children: {
+            $itemId: { component: () => null },
+          },
+        },
+        settings: {
+          component: () => null,
+          navigator: 'stack',
+          tabOptions: { title: 'Settings' },
+          children: {
+            $depth: { component: () => null },
+          },
+        },
+      },
+    });
+    const paths = router.patterns.map((p) => p.path);
+    expect(paths).toContain('/feed');
+    expect(paths).toContain('/feed/$itemId');
+    expect(paths).toContain('/settings');
+    expect(paths).toContain('/settings/$depth');
+  });
+
+  it('handles children without navigator that have no component on parent', () => {
+    const DetailScreen = () => null;
+    const router = createRouter({
+      navigator: 'stack',
+      children: {
+        items: {
+          // no component on parent — only child has one
+          children: {
+            $id: { component: DetailScreen },
+          },
+        },
+      },
+    });
+    const paths = router.patterns.map((p) => p.path);
+    // Parent has no component, so only child pattern is registered
+    expect(paths).toEqual(['/items/$id']);
+    const pattern = router.patterns.find((p) => p.path === '/items/$id');
+    expect(pattern!.routeName).toBe('$id');
+    expect(pattern!.routeConfig.component).toBe(DetailScreen);
+  });
+
   it('throws if root config has no navigator or children', () => {
     expect(() => createRouter({ component: () => null })).toThrow(
       'Root config must have both "navigator" and "children" properties'

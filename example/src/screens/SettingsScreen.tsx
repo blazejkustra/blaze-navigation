@@ -1,6 +1,5 @@
-import { View, Text, StyleSheet, Switch, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Switch } from 'react-native';
 import { useState } from 'react';
-import { navigate } from 'blaze-navigation';
 
 export function SettingsScreen() {
   const [notifications, setNotifications] = useState(true);
@@ -9,53 +8,80 @@ export function SettingsScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Settings</Text>
-      <View style={styles.row}>
-        <Text style={styles.label}>Notifications</Text>
-        <Switch value={notifications} onValueChange={setNotifications} />
+      <View style={styles.card}>
+        <View style={styles.row}>
+          <Text style={styles.label}>Notifications</Text>
+          <Switch
+            value={notifications}
+            onValueChange={setNotifications}
+            trackColor={{ false: '#e4e4e7', true: '#18181b' }}
+            thumbColor="#fff"
+          />
+        </View>
+        <View style={styles.separator} />
+        <View style={styles.row}>
+          <Text style={styles.label}>Dark Mode</Text>
+          <Switch
+            value={darkMode}
+            onValueChange={setDarkMode}
+            trackColor={{ false: '#e4e4e7', true: '#18181b' }}
+            thumbColor="#fff"
+          />
+        </View>
       </View>
-      <View style={styles.row}>
-        <Text style={styles.label}>Dark Mode</Text>
-        <Switch value={darkMode} onValueChange={setDarkMode} />
+      <View style={styles.card}>
+        <View style={styles.row}>
+          <Text style={styles.label}>Version</Text>
+          <View style={styles.versionBadge}>
+            <Text style={styles.versionText}>0.1.0</Text>
+          </View>
+        </View>
       </View>
-      <View style={styles.row}>
-        <Text style={styles.label}>Version</Text>
-        <Text style={styles.value}>0.1.0</Text>
-      </View>
-      <Pressable
-        style={styles.nestingButton}
-        onPress={() => navigate('/settings/1')}
-      >
-        <Text style={styles.nestingButtonText}>Test Nesting</Text>
-      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', paddingTop: 60 },
-  header: { fontSize: 28, fontWeight: '700', padding: 20 },
+  container: { flex: 1, backgroundColor: '#fafafa' },
+  header: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#09090b',
+    letterSpacing: -0.3,
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e4e4e7',
+    marginHorizontal: 16,
+    marginBottom: 8,
+    overflow: 'hidden',
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
-  label: { fontSize: 16 },
-  value: { fontSize: 16, color: '#999' },
-  nestingButton: {
-    margin: 20,
-    backgroundColor: '#007AFF',
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 12,
-    alignItems: 'center' as const,
+  separator: {
+    height: 1,
+    backgroundColor: '#f4f4f5',
+    marginHorizontal: 16,
   },
-  nestingButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600' as const,
+  label: { fontSize: 14, fontWeight: '400', color: '#09090b' },
+  versionBadge: {
+    backgroundColor: '#f4f4f5',
+    borderRadius: 100,
+    paddingVertical: 2,
+    paddingHorizontal: 10,
+  },
+  versionText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#71717a',
   },
 });

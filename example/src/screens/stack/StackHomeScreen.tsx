@@ -1,17 +1,17 @@
 import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import { navigate } from 'blaze-navigation';
 
-const ITEMS = Array.from({ length: 20 }, (_, i) => ({
+const ITEMS = Array.from({ length: 10 }, (_, i) => ({
   id: String(i + 1),
   title: `Item ${i + 1}`,
-  subtitle: `Description for item ${i + 1}`,
 }));
 
-export function FeedScreen() {
+export function StackHomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.header}>Feed</Text>
+        <Text style={styles.header}>Items</Text>
+        <Text style={styles.subtitle}>Select an item to view details.</Text>
       </View>
       <FlatList
         data={ITEMS}
@@ -20,12 +20,9 @@ export function FeedScreen() {
         renderItem={({ item }) => (
           <Pressable
             style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-            onPress={() => navigate(`/feed/${item.id}`)}
+            onPress={() => navigate(`/home/${item.id}`)}
           >
-            <View style={styles.rowContent}>
-              <Text style={styles.rowTitle}>{item.title}</Text>
-              <Text style={styles.rowSubtitle}>{item.subtitle}</Text>
-            </View>
+            <Text style={styles.rowTitle}>{item.title}</Text>
             <Text style={styles.chevron}>&rsaquo;</Text>
           </Pressable>
         )}
@@ -37,7 +34,7 @@ export function FeedScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fafafa' },
+  container: { flex: 1, backgroundColor: '#f8f8f9' },
   headerContainer: {
     paddingHorizontal: 24,
     paddingBottom: 16,
@@ -47,6 +44,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#09090b',
     letterSpacing: -0.3,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#71717a',
+    marginTop: 2,
   },
   list: {
     marginHorizontal: 16,
@@ -69,16 +71,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#f4f4f5',
     marginHorizontal: 16,
   },
-  rowContent: { flex: 1 },
   rowTitle: {
+    flex: 1,
     fontSize: 14,
     fontWeight: '400',
     color: '#09090b',
   },
-  rowSubtitle: {
-    fontSize: 13,
+  chevron: {
+    fontSize: 18,
     color: '#a1a1aa',
-    marginTop: 1,
   },
-  chevron: { fontSize: 18, color: '#a1a1aa', marginLeft: 8 },
 });

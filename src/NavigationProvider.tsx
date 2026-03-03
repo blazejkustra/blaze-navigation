@@ -13,7 +13,12 @@ import {
   resetKeyCounter,
   getActivePath,
 } from './stateOps';
-import type { RouterInstance, NavigatorState, Action } from './types';
+import type {
+  RouterInstance,
+  NavigatorState,
+  Action,
+  RouteConfig,
+} from './types';
 
 /**
  * Recursively searches the state tree to find and switch to a tab by key.
@@ -246,6 +251,33 @@ export function NavigationProvider({
     return result;
   }, [router]);
 
+  const layouts = useMemo(() => {
+    const result: Record<
+      string,
+      React.ComponentType<{ children: React.ReactNode }>
+    > = {};
+
+    function collectLayouts(routes: Record<string, RouteConfig>) {
+      for (const [name, config] of Object.entries(routes)) {
+        if (config.layout) {
+          result[name] = config.layout;
+        }
+        if (config.children) {
+          collectLayouts(config.children);
+        }
+      }
+    }
+
+    // Include layout from root config itself
+    if (router.config.layout) {
+      result['/'] = router.config.layout;
+    }
+    if (router.config.children) {
+      collectLayouts(router.config.children);
+    }
+    return result;
+  }, [router]);
+
   const navigateFn = useCallback(
     (path: string) => dispatch({ type: 'NAVIGATE', path }),
     [dispatch]
@@ -278,6 +310,8 @@ export function NavigationProvider({
         state={state}
         router={router}
         components={components}
+        layouts={layouts}
+        navigatorName="/"
         dispatch={dispatch}
       />
       {children}

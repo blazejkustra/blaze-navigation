@@ -246,7 +246,7 @@ A tab navigator's state contains all routes from initialization. Only `index` ch
 {
   type: 'tabs',
   routes: [
-    { key: 'feed-1', path: '/home/feed' },
+    { key: 'feed-1', path: '/feed' },
     { key: 'profile-1', path: '/home/profile' },
   ],
   index: 1,
@@ -310,7 +310,7 @@ On native, the history adapter is a no-op — state changes don't need to sync w
 
 ### Native History Mimicry
 
-On native, the library maintains an internal history stack to support `goBack()` across navigators. When a user navigates `/home/feed` → `/posts/123` → `/posts/123/comments`, the history stack tracks this sequence so `goBack()` can unwind correctly even across tab and stack boundaries.
+On native, the library maintains an internal history stack to support `goBack()` across navigators. When a user navigates `/feed` → `/posts/123` → `/posts/123/comments`, the history stack tracks this sequence so `goBack()` can unwind correctly even across tab and stack boundaries.
 
 ## 11. Side-by-Side API Comparison
 
@@ -420,7 +420,7 @@ export default function App() {
 // In a screen component:
 function FeedPage() {
   return (
-    <Link to="/home/feed/42">
+    <Link to="/feed/42">
       <Text>Open Details</Text>
     </Link>
   );
@@ -428,9 +428,7 @@ function FeedPage() {
 
 // Or programmatically:
 function SomeButton() {
-  return (
-    <Button title="Open Details" onPress={() => navigate('/home/feed/42')} />
-  );
+  return <Button title="Open Details" onPress={() => navigate('/feed/42')} />;
 }
 
 // Accessing params:
@@ -447,7 +445,7 @@ function DetailsScreen() {
 | Packages          | 3+ (`native`, `native-stack`, `bottom-tabs`)   | 1 (`blaze-navigation`)                      |
 | Route definition  | JSX `<Navigator>` / `<Screen>` tree            | Config object in `createRouter()`           |
 | Type setup        | `ParamList` generics on every factory + hook   | Module augmentation — one `declare module`  |
-| Navigation call   | `navigation.navigate('Details', { id })`       | `navigate('/home/feed/42')`                 |
+| Navigation call   | `navigation.navigate('Details', { id })`       | `navigate('/feed/42')`                      |
 | Navigation access | `useNavigation()` hook per screen              | Global import `from 'blaze-navigation'`     |
 | Route params      | `useRoute().params`                            | `useParams()`                               |
 | Links             | Third-party or manual `Pressable` + `navigate` | `<Link to="/path">` built-in                |

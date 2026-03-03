@@ -11,6 +11,7 @@ import {
   canGoBack,
   switchTab,
   resetKeyCounter,
+  getActivePath,
 } from './stateOps';
 import type { RouterInstance, NavigatorState, Action } from './types';
 
@@ -257,15 +258,18 @@ export function NavigationProvider({
     [dispatch]
   );
 
+  const path = useMemo(() => getActivePath(state), [state]);
+
   const contextValue = useMemo(
     () => ({
       router,
       state,
+      path,
       navigate: navigateFn,
       goBack: goBackFn,
       replace: replaceFn,
     }),
-    [router, state, navigateFn, goBackFn, replaceFn]
+    [router, state, path, navigateFn, goBackFn, replaceFn]
   );
 
   return (

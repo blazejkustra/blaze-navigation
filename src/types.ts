@@ -110,6 +110,7 @@ export interface Route {
 export interface RouterContextValue {
   router: RouterInstance;
   state: NavigatorState;
+  path: string;
   navigate: NavigateFn;
   goBack: GoBackFn;
   replace: ReplaceFn;

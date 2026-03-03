@@ -13,6 +13,7 @@ function renderWithRouter(
   const mockContext: RouterContextValue = {
     router: { config: { navigator: 'stack', children: {} }, patterns: [] },
     state: { type: 'stack', entries: [] },
+    path: '/',
     navigate: jest.fn(),
     goBack: jest.fn(),
     replace: jest.fn(),

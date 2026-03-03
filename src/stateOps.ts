@@ -345,3 +345,30 @@ function goBackDeep(state: NavigatorState): NavigatorState | null {
 
   return null;
 }
+
+/**
+ * Walks the state tree to find the path of the currently focused screen.
+ * For stacks, follows the top entry; for tabs, follows the active tab.
+ * Recurses into nested navigators.
+ */
+export function getActivePath(state: NavigatorState): string {
+  if (state.type === 'stack') {
+    const topEntry = state.entries[state.entries.length - 1];
+    if (!topEntry) return '/';
+    if (topEntry.nestedState) {
+      return getActivePath(topEntry.nestedState);
+    }
+    return topEntry.path;
+  }
+
+  if (state.type === 'tabs') {
+    const activeTab = state.tabs[state.activeKey];
+    if (!activeTab) return '/';
+    if (activeTab.nestedState) {
+      return getActivePath(activeTab.nestedState);
+    }
+    return activeTab.path;
+  }
+
+  return '/';
+}

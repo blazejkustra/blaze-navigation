@@ -48,7 +48,6 @@ export function RecursiveScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fafafa' },
   nav: {
-    paddingTop: 60,
     paddingHorizontal: 24,
     paddingBottom: 8,
   },

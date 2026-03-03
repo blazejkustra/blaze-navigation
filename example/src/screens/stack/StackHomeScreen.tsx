@@ -34,7 +34,7 @@ export function StackHomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fafafa' },
+  container: { flex: 1, backgroundColor: '#f8f8f9' },
   headerContainer: {
     paddingHorizontal: 24,
     paddingBottom: 16,

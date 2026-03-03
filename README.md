@@ -27,7 +27,7 @@ npm install blaze-navigation react-native-screens react-native-safe-area-context
 
 ### 1. Define your router
 
-```tsx
+```ts
 import { createRouter } from 'blaze-navigation';
 import { FeedScreen } from './screens/FeedScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
@@ -66,7 +66,7 @@ This enables full type inference for `navigate()`, `<Link to="..." />`, and `use
 
 ### 3. Render the provider
 
-```tsx
+```ts
 import { NavigationProvider } from 'blaze-navigation';
 
 export default function App() {
@@ -76,7 +76,7 @@ export default function App() {
 
 ### 4. Navigate
 
-```tsx
+```ts
 import { navigate, goBack, Link } from 'blaze-navigation';
 
 // From anywhere (including outside React components)

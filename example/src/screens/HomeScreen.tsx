@@ -17,7 +17,7 @@ export function HomeScreen({ examples, onSelect }: Props) {
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Examples</Text>
         <Text style={styles.subtitle}>
-          Browse navigation patterns built with Blaze.
+          Browse navigation patterns built with blaze-navigation.
         </Text>
       </View>
       <FlatList

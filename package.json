@@ -84,6 +84,7 @@
     "react": "19.2.0",
     "react-native": "0.83.2",
     "react-native-builder-bob": "^0.40.18",
+    "react-native-safe-area-context": "^5.7.0",
     "react-native-screens": "^4.24.0",
     "react-test-renderer": "19.2.0",
     "release-it": "^19.0.4",
@@ -93,6 +94,7 @@
   "peerDependencies": {
     "react": "*",
     "react-native": "*",
+    "react-native-safe-area-context": ">=5.0.0",
     "react-native-screens": ">=4.0.0"
   },
   "workspaces": [

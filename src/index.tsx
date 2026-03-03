@@ -41,4 +41,5 @@ export type {
   ReplaceFn,
   GoBackFn,
   ExtractParams,
+  TabBarRenderProps,
 } from './types';

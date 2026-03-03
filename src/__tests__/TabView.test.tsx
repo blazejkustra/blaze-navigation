@@ -1,8 +1,8 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
-import { Text, View } from 'react-native';
+import { render, fireEvent } from '@testing-library/react-native';
+import { Text, View, TouchableOpacity } from 'react-native';
 import { TabView } from '../tabs/TabView';
-import type { TabState, TabEntry } from '../types';
+import type { TabState, TabEntry, TabBarRenderProps } from '../types';
 
 jest.mock('react-native-screens');
 
@@ -164,5 +164,117 @@ describe('TabView', () => {
 
     expect(renderContent).toHaveBeenCalled();
     expect(getByText('Nested Tab Content')).toBeTruthy();
+  });
+
+  describe('customTabBar', () => {
+    it('sets tabBarHidden on Tabs.Host when customTabBar is provided', () => {
+      const state = makeTabState('feed', {
+        feed: makeTab('feed', true),
+        search: makeTab('search', false),
+      });
+
+      const hostProps: Record<string, any> = {};
+      jest
+        .spyOn(require('react-native-screens').Tabs, 'Host')
+        .mockImplementation(({ children, ...props }: any) => {
+          Object.assign(hostProps, props);
+          return (
+            <View testID="TabsHost" {...props}>
+              {children}
+            </View>
+          );
+        });
+
+      render(
+        <TabView
+          state={state}
+          components={components}
+          onTabFocus={() => {}}
+          customTabBar={() => <Text>Custom Bar</Text>}
+        />
+      );
+
+      expect(hostProps.tabBarHidden).toBe(true);
+      jest.restoreAllMocks();
+    });
+
+    it('does not set tabBarHidden when customTabBar is not provided', () => {
+      const state = makeTabState('feed', {
+        feed: makeTab('feed', true),
+      });
+
+      const hostProps: Record<string, any> = {};
+      jest
+        .spyOn(require('react-native-screens').Tabs, 'Host')
+        .mockImplementation(({ children, ...props }: any) => {
+          Object.assign(hostProps, props);
+          return (
+            <View testID="TabsHost" {...props}>
+              {children}
+            </View>
+          );
+        });
+
+      render(
+        <TabView state={state} components={components} onTabFocus={() => {}} />
+      );
+
+      expect(hostProps.tabBarHidden).toBe(false);
+      jest.restoreAllMocks();
+    });
+
+    it('renders custom tab bar with correct state and onTabPress', () => {
+      const state = makeTabState('feed', {
+        feed: makeTab('feed', true),
+        search: makeTab('search', false),
+      });
+
+      const onTabFocus = jest.fn();
+
+      const customTabBar = ({
+        state: tabState,
+        onTabPress,
+      }: TabBarRenderProps) => (
+        <View testID="custom-tab-bar">
+          {Object.keys(tabState.tabs).map((key) => (
+            <TouchableOpacity
+              key={key}
+              testID={`tab-${key}`}
+              onPress={() => onTabPress(key)}
+            >
+              <Text>{key}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      );
+
+      const { getByTestId } = render(
+        <TabView
+          state={state}
+          components={components}
+          onTabFocus={onTabFocus}
+          customTabBar={customTabBar}
+        />
+      );
+
+      expect(getByTestId('custom-tab-bar')).toBeTruthy();
+      fireEvent.press(getByTestId('tab-search'));
+      expect(onTabFocus).toHaveBeenCalledWith('search');
+    });
+
+    it('existing behavior unchanged without customTabBar', () => {
+      const state = makeTabState('feed', {
+        feed: makeTab('feed', true),
+        search: makeTab('search', false),
+      });
+
+      const { getByTestId, getByText, queryByTestId } = render(
+        <TabView state={state} components={components} onTabFocus={() => {}} />
+      );
+
+      expect(getByTestId('TabsHost')).toBeTruthy();
+      expect(getByText('Feed Screen')).toBeTruthy();
+      expect(queryByTestId('custom-tab-bar')).toBeNull();
+    });
   });
 });

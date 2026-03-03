@@ -1,12 +1,14 @@
 import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import { Tabs } from 'react-native-screens';
 import { ScreenProvider } from '../ScreenProvider';
-import type { TabState, TabEntry } from '../types';
+import type { TabState, TabEntry, TabBarRenderProps } from '../types';
 
 interface TabViewProps {
   state: TabState;
   components: Record<string, React.ComponentType<any>>;
   onTabFocus: (tabKey: string) => void;
+  customTabBar?: (props: TabBarRenderProps) => React.ReactNode;
   renderContent?: (tab: TabEntry, key: string) => React.ReactNode;
 }
 
@@ -19,11 +21,13 @@ export function TabView({
   state,
   components,
   onTabFocus,
+  customTabBar,
   renderContent,
 }: TabViewProps) {
-  return (
+  const tabsHost = (
     <Tabs.Host
       experimentalControlNavigationStateInJS
+      tabBarHidden={customTabBar != null}
       onNativeFocusChange={(e) => onTabFocus(e.nativeEvent.tabKey)}
     >
       {Object.entries(state.tabs).map(([key, tab]) => {
@@ -77,4 +81,21 @@ export function TabView({
       })}
     </Tabs.Host>
   );
+
+  if (customTabBar) {
+    return (
+      <View style={styles.container}>
+        {tabsHost}
+        {customTabBar({ state, onTabPress: onTabFocus })}
+      </View>
+    );
+  }
+
+  return tabsHost;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

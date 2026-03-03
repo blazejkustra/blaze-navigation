@@ -1,5 +1,11 @@
 import { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { createRouter, NavigationProvider } from 'blaze-navigation';
+import type { TabBarRenderProps } from 'blaze-navigation';
 import { ExampleContext } from './ExampleContext';
 import { ExampleLayout } from './ExampleLayout';
 
@@ -36,15 +42,33 @@ const simpleTabsRouter = createRouter({
   children: {
     explore: {
       component: TabsScreenA,
-      tabOptions: { title: 'Explore' },
+      tabOptions: {
+        title: 'Explore',
+        icon: {
+          ios: { type: 'sfSymbol', name: 'magnifyingglass' },
+          android: { type: 'drawableResource', name: 'ic_search' },
+        },
+      },
     },
     favorites: {
       component: TabsScreenB,
-      tabOptions: { title: 'Favorites' },
+      tabOptions: {
+        title: 'Favorites',
+        icon: {
+          ios: { type: 'sfSymbol', name: 'star' },
+          android: { type: 'drawableResource', name: 'ic_star' },
+        },
+      },
     },
     account: {
       component: TabsScreenC,
-      tabOptions: { title: 'Account' },
+      tabOptions: {
+        title: 'Account',
+        icon: {
+          ios: { type: 'sfSymbol', name: 'person' },
+          android: { type: 'drawableResource', name: 'ic_person' },
+        },
+      },
     },
   },
 });
@@ -56,19 +80,37 @@ const tabsWithStacksRouter = createRouter({
     feed: {
       component: FeedScreen,
       navigator: 'stack',
-      tabOptions: { title: 'Feed' },
+      tabOptions: {
+        title: 'Feed',
+        icon: {
+          ios: { type: 'sfSymbol', name: 'list.bullet' },
+          android: { type: 'drawableResource', name: 'ic_feed' },
+        },
+      },
       children: {
         $itemId: { component: DetailScreen },
       },
     },
     profile: {
       component: ProfileScreen,
-      tabOptions: { title: 'Profile' },
+      tabOptions: {
+        title: 'Profile',
+        icon: {
+          ios: { type: 'sfSymbol', name: 'person' },
+          android: { type: 'drawableResource', name: 'ic_person' },
+        },
+      },
     },
     settings: {
       component: SettingsScreen,
       navigator: 'stack',
-      tabOptions: { title: 'Settings' },
+      tabOptions: {
+        title: 'Settings',
+        icon: {
+          ios: { type: 'sfSymbol', name: 'gearshape' },
+          android: { type: 'drawableResource', name: 'ic_settings' },
+        },
+      },
       children: {
         $depth: { component: RecursiveScreen },
       },
@@ -85,6 +127,60 @@ const recursiveStackRouter = createRouter({
       children: {
         $depth: { component: RecursiveScreen },
       },
+    },
+  },
+});
+
+function CustomTabBar({ state, onTabPress }: TabBarRenderProps) {
+  const { bottom } = useSafeAreaInsets();
+  const icons: Record<string, string> = {
+    explore: '🔍',
+    favorites: '⭐',
+    account: '👤',
+  };
+
+  return (
+    <View style={[styles.customTabBar, { paddingBottom: bottom }]}>
+      {Object.entries(state.tabs).map(([key, tab]) => {
+        const isActive = key === state.activeKey;
+        return (
+          <TouchableOpacity
+            key={key}
+            style={[styles.customTab, isActive && styles.customTabActive]}
+            onPress={() => onTabPress(key)}
+          >
+            <Text style={styles.customTabIcon}>{icons[key] ?? '📄'}</Text>
+            <Text
+              style={[
+                styles.customTabLabel,
+                isActive && styles.customTabLabelActive,
+              ]}
+            >
+              {tab.tabOptions?.title ?? key}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+const customTabBarRouter = createRouter({
+  navigator: 'tabs',
+  layout: ExampleLayout,
+  customTabBar: (props) => <CustomTabBar {...props} />,
+  children: {
+    explore: {
+      component: TabsScreenA,
+      tabOptions: { title: 'Explore' },
+    },
+    favorites: {
+      component: TabsScreenB,
+      tabOptions: { title: 'Favorites' },
+    },
+    account: {
+      component: TabsScreenC,
+      tabOptions: { title: 'Account' },
     },
   },
 });
@@ -116,6 +212,12 @@ const EXAMPLES = [
     description: 'A screen that pushes itself infinitely',
     router: recursiveStackRouter,
   },
+  {
+    key: 'custom-tab-bar',
+    title: 'Custom Tab Bar',
+    description: 'Tabs with a custom React component tab bar',
+    router: customTabBarRouter,
+  },
 ];
 
 export default function App() {
@@ -136,8 +238,43 @@ export default function App() {
   const contextValue = { onBack: () => setActiveExample(null) };
 
   return (
-    <ExampleContext.Provider value={contextValue}>
-      <NavigationProvider router={example.router} />
-    </ExampleContext.Provider>
+    <SafeAreaProvider>
+      <ExampleContext.Provider value={contextValue}>
+        <NavigationProvider router={example.router} />
+      </ExampleContext.Provider>
+    </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  customTabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#ddd',
+    paddingTop: 8,
+  },
+  customTab: {
+    flex: 1,
+    alignItems: 'center',
+    borderTopWidth: 2,
+    paddingVertical: 4,
+    borderTopColor: 'transparent',
+  },
+  customTabActive: {
+    borderTopWidth: 2,
+    borderTopColor: '#007AFF',
+  },
+  customTabIcon: {
+    fontSize: 20,
+    marginBottom: 2,
+  },
+  customTabLabel: {
+    fontSize: 11,
+    color: '#8E8E93',
+  },
+  customTabLabelActive: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+});

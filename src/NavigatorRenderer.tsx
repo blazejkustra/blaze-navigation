@@ -7,6 +7,7 @@ import type {
   Action,
   StackEntry,
   TabEntry,
+  TabBarRenderProps,
 } from './types';
 
 interface NavigatorRendererProps {
@@ -14,6 +15,7 @@ interface NavigatorRendererProps {
   router: RouterInstance;
   components: Record<string, React.ComponentType<any>>;
   layouts: Record<string, React.ComponentType<{ children: React.ReactNode }>>;
+  customTabBars: Record<string, (props: TabBarRenderProps) => React.ReactNode>;
   navigatorName?: string;
   dispatch: (action: Action) => void;
 }
@@ -27,6 +29,7 @@ export function NavigatorRenderer({
   router,
   components,
   layouts,
+  customTabBars,
   navigatorName,
   dispatch,
 }: NavigatorRendererProps) {
@@ -48,6 +51,7 @@ export function NavigatorRenderer({
                 router={router}
                 components={components}
                 layouts={layouts}
+                customTabBars={customTabBars}
                 navigatorName={entry.routeName}
                 dispatch={dispatch}
               />
@@ -63,6 +67,7 @@ export function NavigatorRenderer({
         state={state}
         components={components}
         onTabFocus={(tabKey) => dispatch({ type: 'SWITCH_TAB', tabKey })}
+        customTabBar={navigatorName ? customTabBars[navigatorName] : undefined}
         renderContent={(tab: TabEntry, key: string) => {
           if (tab.nestedState) {
             return (
@@ -71,6 +76,7 @@ export function NavigatorRenderer({
                 router={router}
                 components={components}
                 layouts={layouts}
+                customTabBars={customTabBars}
                 navigatorName={key}
                 dispatch={dispatch}
               />

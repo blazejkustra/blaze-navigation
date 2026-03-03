@@ -76,6 +76,7 @@ describe('NavigatorRenderer', () => {
           router={tabsWithStackRouter}
           components={components}
           layouts={{}}
+          customTabBars={{}}
           dispatch={() => {}}
         />
       );
@@ -95,6 +96,7 @@ describe('NavigatorRenderer', () => {
           router={tabsWithStackRouter}
           components={components}
           layouts={{}}
+          customTabBars={{}}
           dispatch={() => {}}
         />
       );
@@ -115,6 +117,7 @@ describe('NavigatorRenderer', () => {
           router={tabsWithStackRouter}
           components={components}
           layouts={{}}
+          customTabBars={{}}
           dispatch={() => {}}
         />
       );
@@ -135,6 +138,7 @@ describe('NavigatorRenderer', () => {
           router={stackWithTabsRouter}
           components={components}
           layouts={{}}
+          customTabBars={{}}
           dispatch={() => {}}
         />
       );
@@ -178,6 +182,7 @@ describe('NavigatorRenderer', () => {
           router={tabsWithStackRouter}
           components={components}
           layouts={{}}
+          customTabBars={{}}
           dispatch={dispatch}
         />
       );

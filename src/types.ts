@@ -1,4 +1,5 @@
 import type React from 'react';
+import type { PlatformIcon, PlatformIconIOS } from 'react-native-screens';
 
 // ---------------------------------------------------------------------------
 // Route config types
@@ -18,10 +19,12 @@ export interface RouteConfig {
   /** Tab-specific options */
   tabOptions?: {
     title?: string;
-    icon?: any;
-    selectedIcon?: any;
+    icon?: PlatformIcon;
+    selectedIcon?: PlatformIconIOS;
     badgeValue?: string;
   };
+  /** Custom tab bar renderer — replaces the native tab bar when provided */
+  customTabBar?: (props: TabBarRenderProps) => React.ReactNode;
 }
 
 // ---------------------------------------------------------------------------
@@ -57,6 +60,11 @@ export interface TabState {
 }
 
 export type NavigatorState = StackState | TabState;
+
+export interface TabBarRenderProps {
+  state: TabState;
+  onTabPress: (tabKey: string) => void;
+}
 
 // ---------------------------------------------------------------------------
 // Router instance

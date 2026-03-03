@@ -18,6 +18,7 @@ import type {
   NavigatorState,
   Action,
   RouteConfig,
+  TabBarRenderProps,
 } from './types';
 
 /**
@@ -251,6 +252,32 @@ export function NavigationProvider({
     return result;
   }, [router]);
 
+  const customTabBars = useMemo(() => {
+    const result: Record<
+      string,
+      (props: TabBarRenderProps) => React.ReactNode
+    > = {};
+
+    function collectRenderers(routes: Record<string, RouteConfig>) {
+      for (const [name, config] of Object.entries(routes)) {
+        if (config.customTabBar) {
+          result[name] = config.customTabBar;
+        }
+        if (config.children) {
+          collectRenderers(config.children);
+        }
+      }
+    }
+
+    if (router.config.customTabBar) {
+      result['/'] = router.config.customTabBar;
+    }
+    if (router.config.children) {
+      collectRenderers(router.config.children);
+    }
+    return result;
+  }, [router]);
+
   const layouts = useMemo(() => {
     const result: Record<
       string,
@@ -311,6 +338,7 @@ export function NavigationProvider({
         router={router}
         components={components}
         layouts={layouts}
+        customTabBars={customTabBars}
         navigatorName="/"
         dispatch={dispatch}
       />

@@ -12,6 +12,7 @@ export { NavigatorRenderer } from './NavigatorRenderer';
 
 // Hooks
 export { useParams } from './hooks/useParams';
+export { useRouter } from './hooks/useRouter';
 export { useNavigationListener } from './hooks/useListeners';
 
 // Contexts (for advanced use)

@@ -69,7 +69,7 @@ export interface RouterInstance<TConfig extends RouteConfig = RouteConfig> {
 }
 
 export interface RoutePattern {
-  /** e.g. '/home/feed/$itemId' */
+  /** e.g. '/profile' */
   path: string;
   segments: string[];
   paramNames: string[];
@@ -174,7 +174,7 @@ type JoinPath<A extends string, B extends string> = A extends ''
   : `${A}/${B}`;
 
 /** Extract all paths from a route config tree */
-type ExtractPaths<
+export type ExtractPaths<
   T extends Record<string, RouteConfig>,
   Prefix extends string = ''
 > = {
@@ -188,7 +188,7 @@ type ExtractPaths<
 }[keyof T & string];
 
 /** Replace $param segments with string values */
-type ReplaceParams<T extends string> =
+export type ReplaceParams<T extends string> =
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   T extends `${infer Before}/$${infer _Param}/${infer After}`
     ? `${Before}/${string}/${ReplaceParams<After>}`

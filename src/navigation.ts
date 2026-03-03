@@ -1,4 +1,4 @@
-import type { Action } from './types';
+import type { Action, ValidPaths } from './types';
 
 let _dispatch: ((action: Action) => void) | null = null;
 
@@ -29,7 +29,7 @@ export function unregisterDispatch() {
  * navigate('/profile/123');
  * ```
  */
-export function navigate(path: string) {
+export function navigate(path: ValidPaths) {
   if (!_dispatch) {
     throw new Error('navigate() called before NavigationProvider is mounted');
   }
@@ -66,7 +66,7 @@ export function goBack() {
  * replace('/settings');
  * ```
  */
-export function replace(path: string) {
+export function replace(path: ValidPaths) {
   if (!_dispatch) {
     throw new Error('replace() called before NavigationProvider is mounted');
   }

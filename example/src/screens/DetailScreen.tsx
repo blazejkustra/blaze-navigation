@@ -26,7 +26,7 @@ export function DetailScreen() {
         <View style={styles.card}>
           <Text style={styles.label}>Route</Text>
           <View style={styles.codeBadge}>
-            <Text style={styles.codeText}>/home/feed/{itemId}</Text>
+            <Text style={styles.codeText}>/feed/{itemId}</Text>
           </View>
         </View>
         <Text style={styles.muted}>

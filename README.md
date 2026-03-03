@@ -89,7 +89,7 @@ goBack();
 
 ## Examples
 
-The [`example/`](example/) directory contains a demo app with four navigation patterns:
+The [`example/`](example/) directory contains a demo app with four navigation patterns.
 
 ## Docs
 

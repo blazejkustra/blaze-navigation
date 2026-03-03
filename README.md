@@ -1,22 +1,116 @@
 # blaze-navigation
 
-Blazingly fast react native navigation library
+Blazingly fast & simple React Native navigation
+
+> **Experimental** — This library is under active development. APIs may change between releases.
+
+## Features
+
+- Declarative route configuration
+- Type-safe navigation with full path inference
+- Stack and tab navigators (powered by `react-native-screens`)
+- Nested navigators (stacks inside tabs, tabs inside stacks)
+- Dynamic route parameters (`$paramName`)
+- Global navigation functions (usable outside React components)
+- Navigation event listeners
+- Layouts and route guards
+
+## API Overview
+
+| Export                  | Type      | Description                                   |
+| ----------------------- | --------- | --------------------------------------------- |
+| `createRouter`          | Function  | Create a router instance from a route config   |
+| `NavigationProvider`    | Component | Root provider that manages navigation state    |
+| `navigate`              | Function  | Navigate to a path (works outside components)  |
+| `goBack`                | Function  | Go back in the deepest nested stack            |
+| `replace`               | Function  | Replace current screen with a new path         |
+| `Link`                  | Component | Pressable that navigates to a typed path       |
+| `useParams`             | Hook      | Extract route parameters in a screen component |
+| `useNavigationListener` | Hook      | Listen to navigation events (focus, blur, etc) |
+| `ScreenProvider`        | Component | Provides screen context to descendants         |
+| `NavigatorRenderer`     | Component | Renders the navigator tree recursively         |
+| `RouterContext`         | Context   | Access router state and navigation functions   |
+| `ScreenContext`         | Context   | Access current screen's route info             |
 
 ## Installation
 
 ```sh
-npm install blaze-navigation
+npm install blaze-navigation react-native-screens
 ```
 
-## Usage
+`react-native-screens` (>=4.0.0) is a required peer dependency. Follow its [installation instructions](https://github.com/software-mansion/react-native-screens#installation) if you haven't already.
 
-```js
-import { multiply } from 'blaze-navigation';
+## Quick Start
 
-// ...
+### 1. Define your router
 
-const result = await multiply(3, 7);
+```tsx
+import { createRouter } from 'blaze-navigation';
+import { FeedScreen } from './screens/FeedScreen';
+import { ProfileScreen } from './screens/ProfileScreen';
+import { DetailScreen } from './screens/DetailScreen';
+
+const router = createRouter({
+  navigator: 'tabs',
+  children: {
+    feed: {
+      component: FeedScreen,
+      navigator: 'stack',
+      tabOptions: { title: 'Feed' },
+      children: {
+        $itemId: { component: DetailScreen },
+      },
+    },
+    profile: {
+      component: ProfileScreen,
+      tabOptions: { title: 'Profile' },
+    },
+  },
+});
 ```
+
+### 2. Register types (optional but recommended)
+
+```ts
+declare module 'blaze-navigation' {
+  interface Register {
+    router: typeof router;
+  }
+}
+```
+
+This enables full type inference for `navigate()`, `<Link to="..." />`, and `useParams()`.
+
+### 3. Render the provider
+
+```tsx
+import { NavigationProvider } from 'blaze-navigation';
+
+export default function App() {
+  return <NavigationProvider router={router} />;
+}
+```
+
+### 4. Navigate
+
+```tsx
+import { navigate, goBack, Link } from 'blaze-navigation';
+
+// From anywhere (including outside React components)
+navigate('/feed/42');
+goBack();
+
+// Or use the Link component
+<Link to="/feed/42">View Item</Link>
+```
+
+## Examples
+
+The [`example/`](example/) directory contains a demo app with four navigation patterns:
+
+## Docs
+
+See [DOCS.md](DOCS.md) for the full API reference.
 
 ## Contributing
 
@@ -27,17 +121,3 @@ const result = await multiply(3, 7);
 ## License
 
 MIT
-
----
-
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
-
-TODO:
-
-- [x] initial route to be '/'
-- [ ] deep goBack
-- [ ] conditional routes
-- [ ] web support
-- [ ] Tabs inside stack
-- [ ] Custom themes
-- [ ] deeplinks

@@ -37,6 +37,8 @@
     "prepare": "bob build",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "prettier": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
+    "prettier:write": "prettier --write \"**/*.{js,ts,tsx,json,md}\"",
     "test": "jest",
     "release": "release-it --only-version"
   },

@@ -33,8 +33,11 @@ MIT
 Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
 
 TODO:
-- deep goBack
-- conditional routes
-- web support
-- Tabs inside stack
-- initial route to be '/'
+
+- [x] initial route to be '/'
+- [ ] deep goBack
+- [ ] conditional routes
+- [ ] web support
+- [ ] Tabs inside stack
+- [ ] Custom themes
+- [ ] deeplinks

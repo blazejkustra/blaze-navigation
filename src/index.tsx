@@ -20,7 +20,6 @@ export { RouterContext, ScreenContext } from './NavigationContext';
 // Types
 export type {
   RouteConfig,
-  RouterConfig,
   Route,
   NavigatorState,
   StackState,

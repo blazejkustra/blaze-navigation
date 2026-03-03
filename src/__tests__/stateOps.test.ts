@@ -17,48 +17,36 @@ beforeEach(() => {
 
 // Simple stack config
 const stackRouter = createRouter({
-  routes: {
-    app: {
-      navigator: 'stack',
-      children: {
-        home: { component: () => null },
-        details: { component: () => null },
-        $itemId: { component: () => null },
-      },
-    },
+  navigator: 'stack',
+  children: {
+    home: { component: () => null },
+    details: { component: () => null },
+    $itemId: { component: () => null },
   },
 });
 
 // Simple tabs config
 const tabRouter = createRouter({
-  routes: {
-    app: {
-      navigator: 'tabs',
-      children: {
-        feed: { component: () => null },
-        search: { component: () => null },
-        profile: { component: () => null },
-      },
-    },
+  navigator: 'tabs',
+  children: {
+    feed: { component: () => null },
+    search: { component: () => null },
+    profile: { component: () => null },
   },
 });
 
 // Nested config: tabs > stack
 const nestedRouter = createRouter({
-  routes: {
-    app: {
-      navigator: 'tabs',
+  navigator: 'tabs',
+  children: {
+    feed: {
+      navigator: 'stack',
       children: {
-        feed: {
-          navigator: 'stack',
-          children: {
-            list: { component: () => null },
-            $itemId: { component: () => null },
-          },
-        },
-        profile: { component: () => null },
+        list: { component: () => null },
+        $itemId: { component: () => null },
       },
     },
+    profile: { component: () => null },
   },
 });
 
@@ -68,22 +56,18 @@ const DetailScreen = () => null;
 const ProfileScreen = () => null;
 const SettingsScreen = () => null;
 const exampleRouter = createRouter({
-  routes: {
-    home: {
-      navigator: 'tabs',
+  navigator: 'tabs',
+  children: {
+    feed: {
+      component: FeedScreen,
+      navigator: 'stack',
+      tabOptions: { title: 'Feed' },
       children: {
-        feed: {
-          component: FeedScreen,
-          navigator: 'stack',
-          tabOptions: { title: 'Feed' },
-          children: {
-            $itemId: { component: DetailScreen },
-          },
-        },
-        profile: { component: ProfileScreen },
-        settings: { component: SettingsScreen },
+        $itemId: { component: DetailScreen },
       },
     },
+    profile: { component: ProfileScreen },
+    settings: { component: SettingsScreen },
   },
 });
 
@@ -94,7 +78,7 @@ describe('createInitialState', () => {
     const s = state as StackState;
     expect(s.entries).toHaveLength(1);
     expect(s.entries[0]!.routeName).toBe('home');
-    expect(s.entries[0]!.path).toBe('/app/home');
+    expect(s.entries[0]!.path).toBe('/home');
   });
 
   it('creates correct initial tab state', () => {
@@ -134,6 +118,14 @@ describe('createInitialState', () => {
     expect(nested.entries).toHaveLength(1);
     expect(nested.entries[0]!.routeName).toBe('list');
   });
+
+  it('tab paths start from / with no root segment', () => {
+    const state = createInitialState(tabRouter);
+    const s = state as TabState;
+    expect(s.tabs.feed!.path).toBe('/feed');
+    expect(s.tabs.search!.path).toBe('/search');
+    expect(s.tabs.profile!.path).toBe('/profile');
+  });
 });
 
 describe('pushStack', () => {
@@ -141,13 +133,13 @@ describe('pushStack', () => {
     const state: StackState = {
       type: 'stack',
       entries: [
-        { key: 'home-0', routeName: 'home', path: '/app/home', params: {} },
+        { key: 'home-0', routeName: 'home', path: '/home', params: {} },
       ],
     };
     const entry: StackEntry = {
       key: 'details-1',
       routeName: 'details',
-      path: '/app/details',
+      path: '/details',
       params: {},
     };
     const next = pushStack(state, entry);
@@ -161,19 +153,19 @@ describe('pushStack', () => {
     const state: StackState = {
       type: 'stack',
       entries: [
-        { key: 'home-0', routeName: 'home', path: '/app/home', params: {} },
+        { key: 'home-0', routeName: 'home', path: '/home', params: {} },
       ],
     };
     const entry1: StackEntry = {
       key: 'details-1',
       routeName: 'details',
-      path: '/app/details',
+      path: '/details',
       params: {},
     };
     const entry2: StackEntry = {
       key: 'details-2',
       routeName: 'details',
-      path: '/app/details',
+      path: '/details',
       params: {},
     };
     const next = pushStack(pushStack(state, entry1), entry2);
@@ -188,11 +180,11 @@ describe('popStack', () => {
     const state: StackState = {
       type: 'stack',
       entries: [
-        { key: 'home-0', routeName: 'home', path: '/app/home', params: {} },
+        { key: 'home-0', routeName: 'home', path: '/home', params: {} },
         {
           key: 'details-1',
           routeName: 'details',
-          path: '/app/details',
+          path: '/details',
           params: {},
         },
       ],
@@ -206,7 +198,7 @@ describe('popStack', () => {
     const state: StackState = {
       type: 'stack',
       entries: [
-        { key: 'home-0', routeName: 'home', path: '/app/home', params: {} },
+        { key: 'home-0', routeName: 'home', path: '/home', params: {} },
       ],
     };
     const next = popStack(state);
@@ -220,10 +212,10 @@ describe('switchTab', () => {
       type: 'tabs',
       activeKey: 'feed',
       tabs: {
-        feed: { key: 'feed', path: '/app/feed', params: {}, rendered: true },
+        feed: { key: 'feed', path: '/feed', params: {}, rendered: true },
         search: {
           key: 'search',
-          path: '/app/search',
+          path: '/search',
           params: {},
           rendered: false,
         },
@@ -240,7 +232,7 @@ describe('switchTab', () => {
 describe('navigateToMatch', () => {
   it('pushes to stack for stack routes', () => {
     const state = createInitialState(stackRouter);
-    const match = matchPath('/app/details', stackRouter.patterns)!;
+    const match = matchPath('/details', stackRouter.patterns)!;
     const next = navigateToMatch(state, match);
     const s = next as StackState;
     expect(s.entries).toHaveLength(2);
@@ -249,7 +241,7 @@ describe('navigateToMatch', () => {
 
   it('switches tab for tab routes', () => {
     const state = createInitialState(tabRouter);
-    const match = matchPath('/app/search', tabRouter.patterns)!;
+    const match = matchPath('/search', tabRouter.patterns)!;
     const next = navigateToMatch(state, match);
     const s = next as TabState;
     expect(s.activeKey).toBe('search');
@@ -258,7 +250,7 @@ describe('navigateToMatch', () => {
 
   it('handles nested: switch tab THEN push stack', () => {
     const state = createInitialState(nestedRouter);
-    const match = matchPath('/app/feed/42', nestedRouter.patterns)!;
+    const match = matchPath('/feed/42', nestedRouter.patterns)!;
     const next = navigateToMatch(state, match);
     const s = next as TabState;
     expect(s.activeKey).toBe('feed');
@@ -270,7 +262,7 @@ describe('navigateToMatch', () => {
 
   it('extracts params for dynamic segments', () => {
     const state = createInitialState(stackRouter);
-    const match = matchPath('/app/99', stackRouter.patterns)!;
+    const match = matchPath('/99', stackRouter.patterns)!;
     const next = navigateToMatch(state, match);
     const s = next as StackState;
     expect(s.entries[1]!.params).toEqual({ itemId: '99' });
@@ -278,7 +270,7 @@ describe('navigateToMatch', () => {
 
   it('pushes detail onto nested stack when route has component + navigator (example app)', () => {
     const state = createInitialState(exampleRouter);
-    const match = matchPath('/home/feed/42', exampleRouter.patterns)!;
+    const match = matchPath('/feed/42', exampleRouter.patterns)!;
     expect(match).not.toBeNull();
     const next = navigateToMatch(state, match);
     const s = next as TabState;
@@ -294,7 +286,7 @@ describe('navigateToMatch', () => {
 describe('goBackReducer', () => {
   it('pops deepest stack', () => {
     const state = createInitialState(stackRouter);
-    const match = matchPath('/app/details', stackRouter.patterns)!;
+    const match = matchPath('/details', stackRouter.patterns)!;
     const pushed = navigateToMatch(state, match);
     const popped = goBackReducer(pushed);
     const s = popped as StackState;
@@ -309,7 +301,7 @@ describe('goBackReducer', () => {
 
   it('pops nested stack without switching tabs', () => {
     const state = createInitialState(nestedRouter);
-    const match = matchPath('/app/feed/42', nestedRouter.patterns)!;
+    const match = matchPath('/feed/42', nestedRouter.patterns)!;
     const pushed = navigateToMatch(state, match);
     const popped = goBackReducer(pushed);
     const s = popped as TabState;

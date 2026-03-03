@@ -36,14 +36,7 @@ function nextKey(name: string): string {
  * @returns The root navigator state tree.
  */
 export function createInitialState(router: RouterInstance): NavigatorState {
-  // Find the root navigator from config
-  const rootEntries = Object.entries(router.config.routes);
-  if (rootEntries.length === 0) {
-    throw new Error('Router config must have at least one route');
-  }
-
-  const [rootName, rootConfig] = rootEntries[0]!;
-  return createNavigatorState(rootName, rootConfig);
+  return createNavigatorState('/', router.config);
 }
 
 /**
@@ -66,6 +59,8 @@ function createNavigatorState(
 
   const childEntries = Object.entries(config.children);
 
+  const isRoot = name === '/';
+
   if (config.navigator === 'tabs') {
     const tabs: TabState['tabs'] = {};
     let firstKey: string | undefined;
@@ -77,9 +72,11 @@ function createNavigatorState(
           ? createNavigatorState(childName, childConfig)
           : undefined;
 
+      const childPath = isRoot ? `/${childName}` : `/${name}/${childName}`;
+
       tabs[childName] = {
         key: childName,
-        path: `/${name}/${childName}`,
+        path: childPath,
         params: {},
         rendered: childName === firstKey,
         nestedState,
@@ -103,7 +100,7 @@ function createNavigatorState(
         {
           key: nextKey(name),
           routeName: name,
-          path: `/${name}`,
+          path: isRoot ? '/' : `/${name}`,
           params: {},
         },
       ],
@@ -117,13 +114,15 @@ function createNavigatorState(
       ? createNavigatorState(firstName, firstConfig)
       : undefined;
 
+  const firstChildPath = isRoot ? `/${firstName}` : `/${name}/${firstName}`;
+
   return {
     type: 'stack',
     entries: [
       {
         key: nextKey(firstName),
         routeName: firstName,
-        path: `/${name}/${firstName}`,
+        path: firstChildPath,
         params: {},
         nestedState,
       },
@@ -345,4 +344,31 @@ function goBackDeep(state: NavigatorState): NavigatorState | null {
   }
 
   return null;
+}
+
+/**
+ * Walks the state tree to find the path of the currently focused screen.
+ * For stacks, follows the top entry; for tabs, follows the active tab.
+ * Recurses into nested navigators.
+ */
+export function getActivePath(state: NavigatorState): string {
+  if (state.type === 'stack') {
+    const topEntry = state.entries[state.entries.length - 1];
+    if (!topEntry) return '/';
+    if (topEntry.nestedState) {
+      return getActivePath(topEntry.nestedState);
+    }
+    return topEntry.path;
+  }
+
+  if (state.type === 'tabs') {
+    const activeTab = state.tabs[state.activeKey];
+    if (!activeTab) return '/';
+    if (activeTab.nestedState) {
+      return getActivePath(activeTab.nestedState);
+    }
+    return activeTab.path;
+  }
+
+  return '/';
 }

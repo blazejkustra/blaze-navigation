@@ -11,8 +11,14 @@ import {
   canGoBack,
   switchTab,
   resetKeyCounter,
+  getActivePath,
 } from './stateOps';
-import type { RouterInstance, NavigatorState, Action } from './types';
+import type {
+  RouterInstance,
+  NavigatorState,
+  Action,
+  RouteConfig,
+} from './types';
 
 /**
  * Recursively searches the state tree to find and switch to a tab by key.
@@ -251,7 +257,7 @@ export function NavigationProvider({
       React.ComponentType<{ children: React.ReactNode }>
     > = {};
 
-    function collectLayouts(routes: Record<string, any>) {
+    function collectLayouts(routes: Record<string, RouteConfig>) {
       for (const [name, config] of Object.entries(routes)) {
         if (config.layout) {
           result[name] = config.layout;
@@ -262,7 +268,13 @@ export function NavigationProvider({
       }
     }
 
-    collectLayouts(router.config.routes);
+    // Include layout from root config itself
+    if (router.config.layout) {
+      result['/'] = router.config.layout;
+    }
+    if (router.config.children) {
+      collectLayouts(router.config.children);
+    }
     return result;
   }, [router]);
 
@@ -278,15 +290,18 @@ export function NavigationProvider({
     [dispatch]
   );
 
+  const path = useMemo(() => getActivePath(state), [state]);
+
   const contextValue = useMemo(
     () => ({
       router,
       state,
+      path,
       navigate: navigateFn,
       goBack: goBackFn,
       replace: replaceFn,
     }),
-    [router, state, navigateFn, goBackFn, replaceFn]
+    [router, state, path, navigateFn, goBackFn, replaceFn]
   );
 
   return (
@@ -296,7 +311,7 @@ export function NavigationProvider({
         router={router}
         components={components}
         layouts={layouts}
-        navigatorName={Object.keys(router.config.routes)[0]}
+        navigatorName="/"
         dispatch={dispatch}
       />
       {children}

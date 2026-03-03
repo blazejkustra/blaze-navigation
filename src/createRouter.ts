@@ -1,5 +1,4 @@
 import type {
-  RouterConfig,
   RouterInstance,
   RoutePattern,
   RouteConfig,
@@ -67,23 +66,48 @@ function flattenRoutes(
  * Creates a router instance from a route configuration, flattening the route tree
  * into matchable patterns with pre-computed navigator paths.
  *
- * @param config - The router configuration defining routes, components, and navigators.
+ * The root config is a navigator (with `navigator` and `children`). It contributes
+ * no path segment — child paths start from `/`.
+ *
+ * @param config - The root route config defining the navigator, children, and components.
  * @returns A router instance containing the config and flattened route patterns.
  *
  * @example
  * ```ts
  * const router = createRouter({
- *   routes: {
- *     home: { component: HomeScreen },
+ *   navigator: 'tabs',
+ *   children: {
+ *     feed: { component: FeedScreen },
  *     profile: { component: ProfileScreen },
  *   },
  * });
  * ```
  */
-export function createRouter<TConfig extends RouterConfig>(
+export function createRouter<TConfig extends RouteConfig>(
   config: TConfig
 ): RouterInstance<TConfig> {
-  const patterns = flattenRoutes(config.routes, '', []);
+  if (!config.children || !config.navigator) {
+    throw new Error(
+      'Root config must have both "navigator" and "children" properties'
+    );
+  }
+
+  // Root navigator contributes no path segment — flatten from children with empty prefix
+  const rootNavigatorPath: NavigatorSegment[] = [];
+  const patterns: RoutePattern[] = [];
+
+  for (const [childName, childConfig] of Object.entries(config.children)) {
+    const segment: NavigatorSegment = {
+      name: '/',
+      type: config.navigator,
+      childName,
+    };
+    const childPatterns = flattenRoutes({ [childName]: childConfig }, '', [
+      ...rootNavigatorPath,
+      segment,
+    ]);
+    patterns.push(...childPatterns);
+  }
 
   return { config, patterns };
 }

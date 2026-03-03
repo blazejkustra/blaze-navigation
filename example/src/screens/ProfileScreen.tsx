@@ -15,12 +15,12 @@ export function ProfileScreen() {
         </View>
       </View>
       <View style={styles.linksCard}>
-        <Link to="/home/settings" style={styles.link}>
+        <Link to="/settings" style={styles.link}>
           <Text style={styles.linkText}>Go to Settings</Text>
           <Text style={styles.chevron}>&rsaquo;</Text>
         </Link>
         <View style={styles.linkSeparator} />
-        <Link to="/home/feed/42" style={styles.link}>
+        <Link to="/feed/42" style={styles.link}>
           <Text style={styles.linkText}>View Item 42</Text>
           <Text style={styles.chevron}>&rsaquo;</Text>
         </Link>

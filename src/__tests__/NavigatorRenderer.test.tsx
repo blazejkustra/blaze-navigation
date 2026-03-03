@@ -24,39 +24,31 @@ const LoginScreen = () => <Text>Login</Text>;
 
 // Tabs at root with nested stack
 const tabsWithStackRouter = createRouter({
-  routes: {
-    app: {
-      navigator: 'tabs',
+  navigator: 'tabs',
+  children: {
+    feed: {
+      navigator: 'stack',
       children: {
-        feed: {
-          navigator: 'stack',
-          children: {
-            list: { component: FeedList },
-            $itemId: { component: FeedDetail },
-          },
-        },
-        profile: { component: ProfileScreen },
+        list: { component: FeedList },
+        $itemId: { component: FeedDetail },
       },
     },
+    profile: { component: ProfileScreen },
   },
 });
 
 // Stack at root with nested tabs
 const stackWithTabsRouter = createRouter({
-  routes: {
-    app: {
-      navigator: 'stack',
+  navigator: 'stack',
+  children: {
+    main: {
+      navigator: 'tabs',
       children: {
-        main: {
-          navigator: 'tabs',
-          children: {
-            feed: { component: FeedList },
-            settings: { component: SettingsScreen },
-          },
-        },
-        login: { component: LoginScreen },
+        feed: { component: FeedList },
+        settings: { component: SettingsScreen },
       },
     },
+    login: { component: LoginScreen },
   },
 });
 
@@ -93,7 +85,7 @@ describe('NavigatorRenderer', () => {
 
     it('cross-navigator navigate: tabs → stack push', () => {
       const state = createInitialState(tabsWithStackRouter);
-      const match = matchPath('/app/feed/42', tabsWithStackRouter.patterns)!;
+      const match = matchPath('/feed/42', tabsWithStackRouter.patterns)!;
       const navigated = navigateToMatch(state, match);
       const components = getAllComponents(tabsWithStackRouter);
 
@@ -112,7 +104,7 @@ describe('NavigatorRenderer', () => {
 
     it('cross-navigator goBack: pops nested stack, does not switch tabs', () => {
       const state = createInitialState(tabsWithStackRouter);
-      const match = matchPath('/app/feed/42', tabsWithStackRouter.patterns)!;
+      const match = matchPath('/feed/42', tabsWithStackRouter.patterns)!;
       const navigated = navigateToMatch(state, match);
       const backedUp = goBackReducer(navigated);
       const components = getAllComponents(tabsWithStackRouter);
@@ -155,7 +147,7 @@ describe('NavigatorRenderer', () => {
     it('native dismiss maps to DISMISS action via dispatch', () => {
       const dispatch = jest.fn();
       const state = createInitialState(tabsWithStackRouter);
-      const match = matchPath('/app/feed/42', tabsWithStackRouter.patterns)!;
+      const match = matchPath('/feed/42', tabsWithStackRouter.patterns)!;
       const navigated = navigateToMatch(state, match);
       const components = getAllComponents(tabsWithStackRouter);
 

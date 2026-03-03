@@ -11,8 +11,9 @@ function renderWithRouter(
   overrides: Partial<RouterContextValue> = {}
 ) {
   const mockContext: RouterContextValue = {
-    router: { config: { routes: {} }, patterns: [] },
+    router: { config: { navigator: 'stack', children: {} }, patterns: [] },
     state: { type: 'stack', entries: [] },
+    path: '/',
     navigate: jest.fn(),
     goBack: jest.fn(),
     replace: jest.fn(),
@@ -30,25 +31,25 @@ function renderWithRouter(
 describe('Link', () => {
   it('calls navigate(to) on press', () => {
     const { getByText, mockContext } = renderWithRouter(
-      <Link to="/home">Go Home</Link>
+      <Link to="/feed">Go Home</Link>
     );
 
     fireEvent.press(getByText('Go Home'));
 
-    expect(mockContext.navigate).toHaveBeenCalledWith('/home');
+    expect(mockContext.navigate).toHaveBeenCalledWith('/feed');
     expect(mockContext.replace).not.toHaveBeenCalled();
   });
 
   it('calls replace(to) when replace prop is true', () => {
     const { getByText, mockContext } = renderWithRouter(
-      <Link to="/home" replace>
+      <Link to="/feed" replace>
         Go Home
       </Link>
     );
 
     fireEvent.press(getByText('Go Home'));
 
-    expect(mockContext.replace).toHaveBeenCalledWith('/home');
+    expect(mockContext.replace).toHaveBeenCalledWith('/feed');
     expect(mockContext.navigate).not.toHaveBeenCalled();
   });
 });

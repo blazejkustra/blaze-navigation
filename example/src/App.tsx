@@ -13,28 +13,16 @@ import { FeedScreen } from './screens/FeedScreen';
 import { DetailScreen } from './screens/DetailScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
-import { StackTabsHomeScreen } from './screens/stack-tabs/StackTabsHomeScreen';
-import { TabContentScreen } from './screens/stack-tabs/TabContentScreen';
 import { RecursiveScreen } from './screens/recursive/RecursiveScreen';
-
-function OverviewTab() {
-  return <TabContentScreen title="Overview" />;
-}
-function ReviewsTab() {
-  return <TabContentScreen title="Reviews" />;
-}
-function RelatedTab() {
-  return <TabContentScreen title="Related" />;
-}
 
 // --- Router configs ---
 
 const simpleStackRouter = createRouter({
-  routes: {
+  navigator: 'stack',
+  layout: ExampleLayout,
+  children: {
     home: {
       component: StackHomeScreen,
-      layout: ExampleLayout,
-      navigator: 'stack',
       children: {
         $itemId: { component: StackDetailScreen },
       },
@@ -43,90 +31,57 @@ const simpleStackRouter = createRouter({
 });
 
 const simpleTabsRouter = createRouter({
-  routes: {
-    home: {
-      navigator: 'tabs',
-      layout: ExampleLayout,
-      children: {
-        explore: {
-          component: TabsScreenA,
-          tabOptions: { title: 'Explore' },
-        },
-        favorites: {
-          component: TabsScreenB,
-          tabOptions: { title: 'Favorites' },
-        },
-        account: {
-          component: TabsScreenC,
-          tabOptions: { title: 'Account' },
-        },
-      },
+  navigator: 'tabs',
+  layout: ExampleLayout,
+  children: {
+    explore: {
+      component: TabsScreenA,
+      tabOptions: { title: 'Explore' },
+    },
+    favorites: {
+      component: TabsScreenB,
+      tabOptions: { title: 'Favorites' },
+    },
+    account: {
+      component: TabsScreenC,
+      tabOptions: { title: 'Account' },
     },
   },
 });
 
 const tabsWithStacksRouter = createRouter({
-  routes: {
-    home: {
-      navigator: 'tabs',
-      layout: ExampleLayout,
+  navigator: 'tabs',
+  layout: ExampleLayout,
+  children: {
+    feed: {
+      component: FeedScreen,
+      navigator: 'stack',
+      tabOptions: { title: 'Feed' },
       children: {
-        feed: {
-          component: FeedScreen,
-          navigator: 'stack',
-          tabOptions: { title: 'Feed' },
-          children: {
-            $itemId: { component: DetailScreen },
-          },
-        },
-        profile: {
-          component: ProfileScreen,
-          tabOptions: { title: 'Profile' },
-        },
-        settings: {
-          component: SettingsScreen,
-          tabOptions: { title: 'Settings' },
-        },
+        $itemId: { component: DetailScreen },
       },
     },
-  },
-});
-
-const stackWithTabsRouter = createRouter({
-  routes: {
-    home: {
-      component: StackTabsHomeScreen,
-      layout: ExampleLayout,
+    profile: {
+      component: ProfileScreen,
+      tabOptions: { title: 'Profile' },
+    },
+    settings: {
+      component: SettingsScreen,
       navigator: 'stack',
+      tabOptions: { title: 'Settings' },
       children: {
-        detail: {
-          navigator: 'tabs',
-          children: {
-            overview: {
-              component: OverviewTab,
-              tabOptions: { title: 'Overview' },
-            },
-            reviews: {
-              component: ReviewsTab,
-              tabOptions: { title: 'Reviews' },
-            },
-            related: {
-              component: RelatedTab,
-              tabOptions: { title: 'Related' },
-            },
-          },
-        },
+        $depth: { component: RecursiveScreen },
       },
     },
   },
 });
 
 const recursiveStackRouter = createRouter({
-  routes: {
+  navigator: 'stack',
+  layout: ExampleLayout,
+  children: {
     home: {
       component: RecursiveScreen,
-      layout: ExampleLayout,
-      navigator: 'stack',
       children: {
         $depth: { component: RecursiveScreen },
       },
@@ -154,12 +109,6 @@ const EXAMPLES = [
     title: 'Tabs + Stacks',
     description: 'Tabs where each tab has its own stack',
     router: tabsWithStacksRouter,
-  },
-  {
-    key: 'stack-with-tabs',
-    title: 'Stack + Tabs',
-    description: 'Stack that pushes a tabbed screen',
-    router: stackWithTabsRouter,
   },
   {
     key: 'recursive-stack',

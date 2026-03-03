@@ -20,7 +20,7 @@ export function FeedScreen() {
         renderItem={({ item }) => (
           <Pressable
             style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-            onPress={() => navigate(`/home/feed/${item.id}`)}
+            onPress={() => navigate(`/feed/${item.id}`)}
           >
             <View style={styles.rowContent}>
               <Text style={styles.rowTitle}>{item.title}</Text>

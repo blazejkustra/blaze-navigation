@@ -251,12 +251,18 @@ export function NavigationProvider({
       React.ComponentType<{ children: React.ReactNode }>
     > = {};
 
-    for (const pattern of router.patterns) {
-      if (pattern.routeConfig.layout) {
-        result[pattern.routeName] = pattern.routeConfig.layout;
+    function collectLayouts(routes: Record<string, any>) {
+      for (const [name, config] of Object.entries(routes)) {
+        if (config.layout) {
+          result[name] = config.layout;
+        }
+        if (config.children) {
+          collectLayouts(config.children);
+        }
       }
     }
 
+    collectLayouts(router.config.routes);
     return result;
   }, [router]);
 
@@ -290,6 +296,7 @@ export function NavigationProvider({
         router={router}
         components={components}
         layouts={layouts}
+        navigatorName={Object.keys(router.config.routes)[0]}
         dispatch={dispatch}
       />
       {children}

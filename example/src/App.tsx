@@ -46,20 +46,18 @@ const simpleTabsRouter = createRouter({
   routes: {
     home: {
       navigator: 'tabs',
+      layout: ExampleLayout,
       children: {
         explore: {
           component: TabsScreenA,
-          layout: ExampleLayout,
           tabOptions: { title: 'Explore' },
         },
         favorites: {
           component: TabsScreenB,
-          layout: ExampleLayout,
           tabOptions: { title: 'Favorites' },
         },
         account: {
           component: TabsScreenC,
-          layout: ExampleLayout,
           tabOptions: { title: 'Account' },
         },
       },
@@ -71,10 +69,10 @@ const tabsWithStacksRouter = createRouter({
   routes: {
     home: {
       navigator: 'tabs',
+      layout: ExampleLayout,
       children: {
         feed: {
           component: FeedScreen,
-          layout: ExampleLayout,
           navigator: 'stack',
           tabOptions: { title: 'Feed' },
           children: {
@@ -83,12 +81,10 @@ const tabsWithStacksRouter = createRouter({
         },
         profile: {
           component: ProfileScreen,
-          layout: ExampleLayout,
           tabOptions: { title: 'Profile' },
         },
         settings: {
           component: SettingsScreen,
-          layout: ExampleLayout,
           tabOptions: { title: 'Settings' },
         },
       },

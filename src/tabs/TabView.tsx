@@ -7,7 +7,7 @@ interface TabViewProps {
   state: TabState;
   components: Record<string, React.ComponentType<any>>;
   onTabFocus: (tabKey: string) => void;
-  renderContent?: (tab: TabEntry) => React.ReactNode;
+  renderContent?: (tab: TabEntry, key: string) => React.ReactNode;
 }
 
 /**
@@ -37,7 +37,7 @@ export function TabView({
             // The native Stack.Host gets corrupted when hidden inside an
             // unfocused Tabs.Screen. JS state preserves the stack entries,
             // so re-mounting when the tab regains focus is safe.
-            content = renderContent(tab);
+            content = renderContent(tab, key);
           } else if (Component) {
             content = <Component />;
           } else if (tab.nestedState && !isFocused) {

@@ -29,6 +29,7 @@ export function FeedScreen() {
             <Text style={styles.chevron}>&rsaquo;</Text>
           </Pressable>
         )}
+        // eslint-disable-next-line react/no-unstable-nested-components
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </View>
